@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Modern GitHub-inspired dashboard">
+  <title>Dashboard | GitHub Style</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+      <a class="brand" href="#">
+        <span class="github-mark">●</span>
+        <span class="brand-text">Dashboard</span>
+      </a>
+
+      <div class="search">
+        <span>⌕</span>
+        <input id="searchInput" type="search" placeholder="Search repositories, projects..." aria-label="Search">
+        <kbd>/</kbd>
+      </div>
+
+      <div class="top-actions">
+        <button class="icon-btn" title="Notifications">♧</button>
+        <button class="icon-btn" id="addBtn" title="Create new">＋</button>
+        <button class="avatar" title="Profile">R</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <nav>
+          <a class="nav-item active" href="#"><span>⌂</span> Dashboard</a>
+          <a class="nav-item" href="#repositories"><span>▣</span> Repositories</a>
+          <a class="nav-item" href="#projects"><span>▦</span> Projects</a>
+          <a class="nav-item" href="#packages"><span>◇</span> Packages</a>
+          <a class="nav-item" href="#people"><span>♧</span> People</a>
+          <a class="nav-item" href="#issues"><span>◎</span> Issues</a>
+          <a class="nav-item" href="#pulls"><span>⑂</span> Pull requests</a>
+          <a class="nav-item" href="#discussions"><span>▱</span> Discussions</a>
+          <a class="nav-item" href="#codespaces"><span>▣</span> Codespaces</a>
+          <a class="nav-item" href="#security"><span>♢</span> Security</a>
+          <a class="nav-item" href="#settings"><span>⚙</span> Settings</a>
+        </nav>
+
+        <div class="sidebar-card">
+          <div class="mini-logo">◆</div>
+          <p>Build, ship,<br>and make an impact.</p>
+          <button class="round-arrow" id="exploreBtn">→</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="mini-github">●</span> Good morning,</div>
+            <h1>Welcome back!</h1>
+            <p>Here's what's happening with your projects today.</p>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="orbit orbit-1"></div>
+            <div class="orbit orbit-2"></div>
+            <div class="code-cat">&lt;/&gt;</div>
+          </div>
+
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-icon blue">▣</div>
+              <div><small>Repositories</small><strong>12 <em>↑ 2</em></strong></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple">⑂</div>
+              <div><small>Pull Requests</small><strong>5 <em>↑ 1</em></strong></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon pink">◎</div>
+              <div><small>Issues</small><strong>8 <i>↓ 1</i></strong></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon violet">♧</div>
+              <div><small>Followers</small><strong>42 <em>↑ 3</em></strong></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="quick panel">
+          <div class="section-title">
+            <h2>⚡ Quick actions</h2>
+            <button class="link-btn" id="customizeBtn">⚙ Customize</button>
+          </div>
+          <div class="quick-grid">
+            <button class="quick-card" data-action="New repository"><span class="q-icon blue">＋</span>New repository</button>
+            <button class="quick-card" data-action="Import repository"><span class="q-icon purple">↓</span>Import repository</button>
+            <button class="quick-card" data-action="New issue"><span class="q-icon green">◎</span>New issue</button>
+            <button class="quick-card" data-action="New pull request"><span class="q-icon pink">⑂</span>New pull request</button>
+            <button class="quick-card" data-action="Create gist"><span class="q-icon slate">&lt;/&gt;</span>Create gist</button>
+          </div>
+        </section>
+
+        <div class="content-grid">
+          <section class="panel activity">
+            <div class="section-title">
+              <h2>◷ Recent activity</h2>
+              <button class="link-btn" id="viewAllBtn">View all →</button>
+            </div>
+            <div id="activityList">
+              <article class="activity-item">
+                <div class="activity-avatar">R</div>
+                <div><b>You pushed to main in your-repo</b><p>⌘ a1b2c3d &nbsp; Update README.md</p></div>
+                <time>2 hours ago</time>
+              </article>
+              <article class="activity-item">
+                <div class="activity-avatar">R</div>
+                <div><b>You opened a pull request in web-project</b><p>⑂ #24 &nbsp; Fix UI bug on dashboard</p></div>
+                <time>4 hours ago</time>
+              </article>
+              <article class="activity-item">
+                <div class="activity-avatar dark">●</div>
+                <div><b>github-bot mentioned you in issue</b><p>◎ #42 &nbsp; Improve performance on API</p></div>
+                <time>5 hours ago</time>
+              </article>
+              <article class="activity-item">
+                <div class="activity-avatar">R</div>
+                <div><b>You closed a pull request in react-app</b><p>⑂ #18 &nbsp; Add dark mode support</p></div>
+                <time>7 hours ago</time>
+              </article>
+              <article class="activity-item">
+                <div class="activity-avatar">R</div>
+                <div><b>You created a new repository</b><p>▣ my-project</p></div>
+                <time>1 day ago</time>
+              </article>
+            </div>
+          </section>
+
+          <aside class="right-column">
+            <section class="panel">
+              <div class="section-title">
+                <h2>🔥 Trending repositories</h2>
+                <button class="link-btn">See all →</button>
+              </div>
+              <div class="repo-list">
+                <article class="repo">
+                  <div class="repo-logo">●</div><div><b>github/docs</b><p>The open source documentation for GitHub</p><small><span class="dot blue-dot"></span> TypeScript</small></div><strong>☆ 34.2k</strong>
+                </article>
+                <article class="repo">
+                  <div class="repo-logo">◧</div><div><b>microsoft/vscode</b><p>Visual Studio Code</p><small><span class="dot yellow-dot"></span> JavaScript</small></div><strong>☆ 161k</strong>
+                </article>
+                <article class="repo">
+                  <div class="repo-logo">✦</div><div><b>facebook/react</b><p>A JavaScript library for building user interfaces</p><small><span class="dot blue-dot"></span> JavaScript</small></div><strong>☆ 212k</strong>
+                </article>
+                <article class="repo">
+                  <div class="repo-logo">≈</div><div><b>tailwindlabs/tailwindcss</b><p>A utility-first CSS framework</p><small><span class="dot cyan-dot"></span> CSS</small></div><strong>☆ 96.4k</strong>
+                </article>
+                <article class="repo">
+                  <div class="repo-logo">▲</div><div><b>vercel/next.js</b><p>The React Framework</p><small><span class="dot purple-dot"></span> TypeScript</small></div><strong>☆ 128k</strong>
+                </article>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="section-title">
+                <h2>💡 Suggested for you</h2>
+                <button class="link-btn">See all →</button>
+              </div>
+              <div class="suggestions">
+                <div class="suggest"><span class="suggest-logo">◉</span><div><b>denoland/deno</b><p>A secure runtime for JavaScript and TypeScript</p></div><button class="follow">Follow</button></div>
+                <div class="suggest"><span class="suggest-logo red">◆</span><div><b>nestjs/nest</b><p>A progressive Node.js framework</p></div><button class="follow">Follow</button></div>
+                <div class="suggest"><span class="suggest-logo">△</span><div><b>prisma/prisma</b><p>Next-generation ORM for Node.js</p></div><button class="follow">Follow</button></div>
+                <div class="suggest"><span class="suggest-logo purple">◎</span><div><b>ionic-team/ionic</b><p>Build amazing apps with web technologies</p></div><button class="follow">Follow</button></div>
+              </div>
+            </section>
+
+            <section class="explore panel">
+              <div class="explore-icon">●</div>
+              <div><b>Explore more</b><p>Discover new projects, people and opportunities on GitHub.</p></div>
+              <button class="round-arrow" id="exploreMore">→</button>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="script.js"></script>
+</body>
+</html>
