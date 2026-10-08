@@ -1,190 +1,142 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Modern GitHub-inspired dashboard">
-  <title>Dashboard | GitHub Style</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10130f">
+  <meta name="description" content="Susun daftar hero dan skill Mobile Legends: Bang Bang yang ingin kamu kuasai.">
+  <title>Noxx127 | MLBB Skill Wishlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="app">
-
+  <div class="site-shell">
     <header class="topbar">
-      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
-      <a class="brand" href="#">
-        <span class="github-mark">●</span>
-        <span class="brand-text">Dashboard</span>
+      <a class="brand" href="#top" aria-label="Noxx127 beranda">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span class="brand-name">NOXX<span>127</span></span>
       </a>
-
-      <div class="search">
-        <span>⌕</span>
-        <input id="searchInput" type="search" placeholder="Search repositories, projects..." aria-label="Search">
-        <kbd>/</kbd>
-      </div>
-
-      <div class="top-actions">
-        <button class="icon-btn" title="Notifications">♧</button>
-        <button class="icon-btn" id="addBtn" title="Create new">＋</button>
-        <button class="avatar" title="Profile">R</button>
-      </div>
+      <span class="topbar-divider" aria-hidden="true"></span>
+      <span class="product-label">MLBB <span>SKILL WISHLIST</span></span>
+      <div class="topbar-status"><span class="status-dot"></span> SEASON 36 <span class="status-divider">/</span> 2026</div>
+      <button class="icon-button menu-toggle" id="menuToggle" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="sideNav">
+        <span></span><span></span>
+      </button>
     </header>
 
-    <div class="layout">
-      <aside class="sidebar" id="sidebar">
-        <nav>
-          <a class="nav-item active" href="#"><span>⌂</span> Dashboard</a>
-          <a class="nav-item" href="#repositories"><span>▣</span> Repositories</a>
-          <a class="nav-item" href="#projects"><span>▦</span> Projects</a>
-          <a class="nav-item" href="#packages"><span>◇</span> Packages</a>
-          <a class="nav-item" href="#people"><span>♧</span> People</a>
-          <a class="nav-item" href="#issues"><span>◎</span> Issues</a>
-          <a class="nav-item" href="#pulls"><span>⑂</span> Pull requests</a>
-          <a class="nav-item" href="#discussions"><span>▱</span> Discussions</a>
-          <a class="nav-item" href="#codespaces"><span>▣</span> Codespaces</a>
-          <a class="nav-item" href="#security"><span>♢</span> Security</a>
-          <a class="nav-item" href="#settings"><span>⚙</span> Settings</a>
+    <div class="app-layout" id="top">
+      <aside class="sidebar" id="sideNav">
+        <div class="sidebar-label">MENU UTAMA</div>
+        <nav class="side-nav" aria-label="Navigasi utama">
+          <a class="side-link is-active" href="#roster" data-view="roster"><span class="nav-icon">◈</span> Semua hero <span class="nav-count" id="heroCount">12</span></a>
+          <a class="side-link" href="#wishlist" data-view="wishlist"><span class="nav-icon">♡</span> Wishlist <span class="nav-count" id="navWishCount">0</span></a>
         </nav>
-
-        <div class="sidebar-card">
-          <div class="mini-logo">◆</div>
-          <p>Build, ship,<br>and make an impact.</p>
-          <button class="round-arrow" id="exploreBtn">→</button>
+        <div class="sidebar-rule"></div>
+        <div class="sidebar-label">ROLE</div>
+        <div class="role-nav" id="roleNav" aria-label="Filter berdasarkan role">
+          <button class="role-link is-active" type="button" data-role="Semua"><span class="role-dot all-dot"></span> Semua role</button>
+          <button class="role-link" type="button" data-role="Assassin"><span class="role-dot assassin-dot"></span> Assassin</button>
+          <button class="role-link" type="button" data-role="Fighter"><span class="role-dot fighter-dot"></span> Fighter</button>
+          <button class="role-link" type="button" data-role="Mage"><span class="role-dot mage-dot"></span> Mage</button>
+          <button class="role-link" type="button" data-role="Marksman"><span class="role-dot marksman-dot"></span> Marksman</button>
+          <button class="role-link" type="button" data-role="Tank"><span class="role-dot tank-dot"></span> Tank</button>
+          <button class="role-link" type="button" data-role="Support"><span class="role-dot support-dot"></span> Support</button>
         </div>
+        <div class="sidebar-note">
+          <span class="note-emblem" aria-hidden="true">✳</span>
+          <p>Rencanakan hero berikutnya. Kuasai satu skill dalam satu waktu.</p>
+        </div>
+        <div class="sidebar-foot"><span class="online-dot"></span> LOCAL PROFILE <span>·</span> DATA TERSIMPAN DI PERANGKAT</div>
       </aside>
 
-      <main class="main">
-        <section class="hero">
-          <div class="hero-copy">
-            <div class="eyebrow"><span class="mini-github">●</span> Good morning,</div>
-            <h1>Welcome back!</h1>
-            <p>Here's what's happening with your projects today.</p>
+      <main class="main-content">
+        <section class="welcome-band" aria-labelledby="pageTitle">
+          <div class="welcome-copy">
+            <div class="eyebrow"><span class="eyebrow-line"></span> CATATAN LATIHAN NOXX127</div>
+            <h1 id="pageTitle">NEXT UP:<br><span>LEGENDARY.</span></h1>
+            <p>Setiap match punya pelajaran. Hero mana yang akan kamu kuasai berikutnya?</p>
+            <a class="jump-link" href="#roster">PILIH HERO <span aria-hidden="true">↘</span></a>
           </div>
-          <div class="hero-art" aria-hidden="true">
-            <div class="orbit orbit-1"></div>
-            <div class="orbit orbit-2"></div>
-            <div class="code-cat">&lt;/&gt;</div>
+          <div class="welcome-art" aria-hidden="true">
+            <div class="art-ring ring-one"></div><div class="art-ring ring-two"></div>
+            <div class="art-cross cross-one">+</div><div class="art-cross cross-two">+</div>
+            <div class="art-number">127</div>
+            <div class="art-stamp"><span>MLBB</span><b>SKILL<br>UP</b></div>
+            <div class="art-caption">PLAY WITH<br>INTENTION</div>
           </div>
-
-          <div class="stats">
-            <div class="stat-card">
-              <div class="stat-icon blue">▣</div>
-              <div><small>Repositories</small><strong>12 <em>↑ 2</em></strong></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon purple">⑂</div>
-              <div><small>Pull Requests</small><strong>5 <em>↑ 1</em></strong></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon pink">◎</div>
-              <div><small>Issues</small><strong>8 <i>↓ 1</i></strong></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon violet">♧</div>
-              <div><small>Followers</small><strong>42 <em>↑ 3</em></strong></div>
-            </div>
-          </div>
+          <div class="welcome-index"><span>01</span><span class="index-line"></span><span>03</span></div>
         </section>
 
-        <section class="quick panel">
-          <div class="section-title">
-            <h2>⚡ Quick actions</h2>
-            <button class="link-btn" id="customizeBtn">⚙ Customize</button>
+        <section class="workspace" id="roster" aria-labelledby="rosterHeading">
+          <div class="section-heading">
+            <div>
+              <div class="eyebrow"><span class="eyebrow-line"></span> HERO LIBRARY</div>
+              <h2 id="rosterHeading">PICK YOUR <span>MAIN.</span></h2>
+            </div>
+            <div class="library-tools">
+              <label class="search-box" for="heroSearch">
+                <span aria-hidden="true">⌕</span>
+                <input id="heroSearch" type="search" placeholder="Cari hero atau skill..." autocomplete="off">
+                <kbd>/</kbd>
+              </label>
+              <label class="sort-control" for="heroSort"><span>URUTKAN</span>
+                <select id="heroSort" aria-label="Urutkan hero">
+                  <option value="featured">Pilihan</option>
+                  <option value="name">Nama A–Z</option>
+                  <option value="role">Role</option>
+                </select>
+              </label>
+            </div>
           </div>
-          <div class="quick-grid">
-            <button class="quick-card" data-action="New repository"><span class="q-icon blue">＋</span>New repository</button>
-            <button class="quick-card" data-action="Import repository"><span class="q-icon purple">↓</span>Import repository</button>
-            <button class="quick-card" data-action="New issue"><span class="q-icon green">◎</span>New issue</button>
-            <button class="quick-card" data-action="New pull request"><span class="q-icon pink">⑂</span>New pull request</button>
-            <button class="quick-card" data-action="Create gist"><span class="q-icon slate">&lt;/&gt;</span>Create gist</button>
+
+          <div class="mobile-filters" id="mobileFilters">
+            <label for="mobileRole">FILTER ROLE</label>
+            <select id="mobileRole" aria-label="Filter role hero">
+              <option value="Semua">Semua role</option>
+              <option value="Assassin">Assassin</option><option value="Fighter">Fighter</option>
+              <option value="Mage">Mage</option><option value="Marksman">Marksman</option>
+              <option value="Tank">Tank</option><option value="Support">Support</option>
+            </select>
           </div>
+
+          <div class="filter-summary">
+            <p id="resultSummary" aria-live="polite">Menampilkan semua hero</p>
+            <button class="clear-filters" id="clearFilters" type="button">RESET FILTER <span aria-hidden="true">↺</span></button>
+          </div>
+
+          <div class="hero-grid" id="heroGrid" aria-live="polite"></div>
+
+          <div class="empty-state" id="emptyState" hidden>
+            <span class="empty-mark" aria-hidden="true">⌕</span>
+            <h3>HERO BELUM DITEMUKAN</h3>
+            <p>Coba kata kunci atau filter lain.</p>
+            <button class="text-button" id="emptyReset" type="button">Reset pencarian</button>
+          </div>
+
+          <footer class="page-footer"><span>NOXX127 <span class="footer-slash">/</span> MLBB SKILL WISHLIST</span><span>BUILT FOR THE NEXT MATCH <span class="footer-star">✳</span></span></footer>
         </section>
-
-        <div class="content-grid">
-          <section class="panel activity">
-            <div class="section-title">
-              <h2>◷ Recent activity</h2>
-              <button class="link-btn" id="viewAllBtn">View all →</button>
-            </div>
-            <div id="activityList">
-              <article class="activity-item">
-                <div class="activity-avatar">R</div>
-                <div><b>You pushed to main in your-repo</b><p>⌘ a1b2c3d &nbsp; Update README.md</p></div>
-                <time>2 hours ago</time>
-              </article>
-              <article class="activity-item">
-                <div class="activity-avatar">R</div>
-                <div><b>You opened a pull request in web-project</b><p>⑂ #24 &nbsp; Fix UI bug on dashboard</p></div>
-                <time>4 hours ago</time>
-              </article>
-              <article class="activity-item">
-                <div class="activity-avatar dark">●</div>
-                <div><b>github-bot mentioned you in issue</b><p>◎ #42 &nbsp; Improve performance on API</p></div>
-                <time>5 hours ago</time>
-              </article>
-              <article class="activity-item">
-                <div class="activity-avatar">R</div>
-                <div><b>You closed a pull request in react-app</b><p>⑂ #18 &nbsp; Add dark mode support</p></div>
-                <time>7 hours ago</time>
-              </article>
-              <article class="activity-item">
-                <div class="activity-avatar">R</div>
-                <div><b>You created a new repository</b><p>▣ my-project</p></div>
-                <time>1 day ago</time>
-              </article>
-            </div>
-          </section>
-
-          <aside class="right-column">
-            <section class="panel">
-              <div class="section-title">
-                <h2>🔥 Trending repositories</h2>
-                <button class="link-btn">See all →</button>
-              </div>
-              <div class="repo-list">
-                <article class="repo">
-                  <div class="repo-logo">●</div><div><b>github/docs</b><p>The open source documentation for GitHub</p><small><span class="dot blue-dot"></span> TypeScript</small></div><strong>☆ 34.2k</strong>
-                </article>
-                <article class="repo">
-                  <div class="repo-logo">◧</div><div><b>microsoft/vscode</b><p>Visual Studio Code</p><small><span class="dot yellow-dot"></span> JavaScript</small></div><strong>☆ 161k</strong>
-                </article>
-                <article class="repo">
-                  <div class="repo-logo">✦</div><div><b>facebook/react</b><p>A JavaScript library for building user interfaces</p><small><span class="dot blue-dot"></span> JavaScript</small></div><strong>☆ 212k</strong>
-                </article>
-                <article class="repo">
-                  <div class="repo-logo">≈</div><div><b>tailwindlabs/tailwindcss</b><p>A utility-first CSS framework</p><small><span class="dot cyan-dot"></span> CSS</small></div><strong>☆ 96.4k</strong>
-                </article>
-                <article class="repo">
-                  <div class="repo-logo">▲</div><div><b>vercel/next.js</b><p>The React Framework</p><small><span class="dot purple-dot"></span> TypeScript</small></div><strong>☆ 128k</strong>
-                </article>
-              </div>
-            </section>
-
-            <section class="panel">
-              <div class="section-title">
-                <h2>💡 Suggested for you</h2>
-                <button class="link-btn">See all →</button>
-              </div>
-              <div class="suggestions">
-                <div class="suggest"><span class="suggest-logo">◉</span><div><b>denoland/deno</b><p>A secure runtime for JavaScript and TypeScript</p></div><button class="follow">Follow</button></div>
-                <div class="suggest"><span class="suggest-logo red">◆</span><div><b>nestjs/nest</b><p>A progressive Node.js framework</p></div><button class="follow">Follow</button></div>
-                <div class="suggest"><span class="suggest-logo">△</span><div><b>prisma/prisma</b><p>Next-generation ORM for Node.js</p></div><button class="follow">Follow</button></div>
-                <div class="suggest"><span class="suggest-logo purple">◎</span><div><b>ionic-team/ionic</b><p>Build amazing apps with web technologies</p></div><button class="follow">Follow</button></div>
-              </div>
-            </section>
-
-            <section class="explore panel">
-              <div class="explore-icon">●</div>
-              <div><b>Explore more</b><p>Discover new projects, people and opportunities on GitHub.</p></div>
-              <button class="round-arrow" id="exploreMore">→</button>
-            </section>
-          </aside>
-        </div>
       </main>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
-  <script src="script.js"></script>
+  <dialog class="hero-dialog" id="heroDialog" aria-labelledby="dialogName">
+    <button class="dialog-close" id="dialogClose" type="button" aria-label="Tutup detail">×</button>
+    <div class="dialog-portrait" id="dialogPortrait"><span id="dialogInitials"></span><span class="portrait-mark">MLBB / HERO FILE</span></div>
+    <div class="dialog-content">
+      <div class="eyebrow" id="dialogRole">HERO PROFILE</div>
+      <h2 id="dialogName"></h2>
+      <p class="dialog-lane" id="dialogLane"></p>
+      <p class="dialog-description" id="dialogDescription"></p>
+      <div class="skill-heading"><span>SKILL SET</span><span>PASSIVE + 3 SKILL</span></div>
+      <ol class="skill-list" id="skillList"></ol>
+      <button class="primary-button dialog-wish" id="dialogWish" type="button"><span aria-hidden="true">♡</span> TAMBAH KE WISHLIST</button>
+      <p class="balance-note">Nama skill mengikuti referensi dalam game. Efek dan angka dapat berubah mengikuti update.</p>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
