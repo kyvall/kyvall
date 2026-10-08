@@ -353,6 +353,11 @@ function renderRoleCards() {
 function renderRole() {
   const role = roleById[state.activeRole];
   if (!role) return;
+  document.getElementById("roleSelector").innerHTML = roleData.map((option) => {
+    const progress = getRoleProgress(option.id);
+    const selected = option.id === role.id;
+    return `<button class="role-selector-option ${selected ? "is-selected" : ""}" type="button" data-view="role" data-role="${option.id}" aria-pressed="${selected}"><span>${option.icon} ${option.label}</span><small>${progress.done}/${progress.total} · ${progress.percent}%</small></button>`;
+  }).join("");
   const progress = getRoleProgress(role.id);
   document.getElementById("roleEyebrow").textContent = `${role.icon} ROLE TRAINING / ${role.name}`;
   document.getElementById("roleTitle").textContent = role.name;
@@ -584,6 +589,7 @@ async function refreshLiveData(type) {
     button.removeAttribute("aria-busy");
     if (isMeta) renderMeta();
     else renderTournament();
+    if (state.view === "draft") window.renderDraftLab();
   }
 }
 
@@ -629,15 +635,16 @@ function render() {
   };
   const visibleView = viewMap[state.view] || state.view;
   document.querySelectorAll(".view").forEach((view) => { view.hidden = view.id !== `${visibleView}View`; });
+  document.querySelectorAll('.side-link[data-view="role"], .mobile-nav-link[data-view="role"]').forEach((item) => {
+    item.dataset.role = state.activeRole;
+  });
   document.querySelectorAll("[data-view]").forEach((item) => {
     const active = (item.dataset.view === state.view || (state.view === "wishlist" && item.dataset.view === "wishlist")) && (state.view !== "role" || item.dataset.role === state.activeRole);
     item.classList.toggle("is-active", active);
     if (item.matches(".side-link, .mobile-nav-link")) item.setAttribute("aria-current", active ? "page" : "false");
   });
-  roleData.forEach((role) => {
-    const progressLabel = document.querySelector(`[data-nav-progress="${role.id}"]`);
-    if (progressLabel) progressLabel.textContent = `${getRoleProgress(role.id).percent}%`;
-  });
+  const skillProgress = document.getElementById("navSkillProgress");
+  if (skillProgress) skillProgress.textContent = `${getRoleProgress(state.progress.focus).percent}%`;
   document.getElementById("heroCount").textContent = String(heroes.length);
   document.getElementById("navWishCount").textContent = String(state.wishlist.length);
   renderDashboard();
@@ -647,6 +654,7 @@ function render() {
   renderCalculator();
   renderMeta();
   renderTournament();
+  if (state.view === "draft") window.renderDraftLab();
   renderReview();
   renderJourney();
   document.getElementById("rankSelect").value = state.progress.rank;
@@ -671,7 +679,14 @@ function renderHeroes() {
 
 function navigate(view, roleId) {
   state.view = view;
-  if (roleId && roleById[roleId]) state.activeRole = roleId;
+  if (view === "role") {
+    const selectedRole = roleById[roleId] ? roleId : state.progress.focus;
+    state.activeRole = selectedRole;
+    if (state.progress.focus !== selectedRole) {
+      state.progress.focus = selectedRole;
+      saveProgress();
+    }
+  }
   render();
   sidebar.classList.remove("is-open");
   menuToggle.setAttribute("aria-expanded", "false");
@@ -813,6 +828,7 @@ document.getElementById("focusSelect").addEventListener("change", () => {
 
 document.getElementById("dashboardFocusSelect").addEventListener("change", () => {
   state.progress.focus = document.getElementById("dashboardFocusSelect").value;
+  state.activeRole = state.progress.focus;
   saveProgress();
   render();
 });
@@ -1027,15 +1043,14 @@ heroDialog.addEventListener("click", (event) => {
   if (event.target === heroDialog) heroDialog.close();
 });
 
-menuToggle.addEventListener("click", () => {
+function toggleSidebar() {
   const isOpen = sidebar.classList.toggle("is-open");
   menuToggle.setAttribute("aria-expanded", String(isOpen));
-});
+  if (isOpen) sidebar.scrollTop = 0;
+}
 
-document.getElementById("mobileMenuButton").addEventListener("click", () => {
-  const isOpen = sidebar.classList.toggle("is-open");
-  menuToggle.setAttribute("aria-expanded", String(isOpen));
-});
+menuToggle.addEventListener("click", toggleSidebar);
+document.getElementById("mobileMenuButton").addEventListener("click", toggleSidebar);
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;

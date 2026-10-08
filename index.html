@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="verified-snapshots.js" defer></script>
   <script src="data-service.js" defer></script>
+  <script src="draft-lab.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -32,7 +33,8 @@
         <div class="sidebar-label">WORKSPACE</div>
         <nav class="side-nav" aria-label="Navigasi utama">
           <button class="side-link is-active" type="button" data-view="dashboard"><span class="nav-icon">🏠</span> Dashboard</button>
-          <button class="side-link" type="button" data-view="role" data-role="jungle"><span class="nav-icon">🎯</span> Skill Training <span class="nav-progress" data-nav-progress="jungle">0%</span></button>
+          <button class="side-link" type="button" data-view="role"><span class="nav-icon">🎯</span> Skill Training <span class="nav-progress" id="navSkillProgress">0%</span></button>
+          <button class="side-link" type="button" data-view="draft"><span class="nav-icon">🎯</span> Draft Lab</button>
           <button class="side-link" type="button" data-view="meta"><span class="nav-icon">🔥</span> Hero Meta S42</button>
           <button class="side-link" type="button" data-view="tournament"><span class="nav-icon">🏆</span> Tournament Lab</button>
           <button class="side-link" type="button" data-view="calculator"><span class="nav-icon">📊</span> WR Calculator</button>
@@ -86,6 +88,7 @@
 
         <section class="view role-view" id="roleView" aria-labelledby="roleTitle" hidden>
           <div class="page-intro"><button class="back-link" type="button" data-view="dashboard">← DASHBOARD</button><div class="eyebrow" id="roleEyebrow">ROLE TRAINING</div><h1 id="roleTitle"></h1><p id="roleTagline"></p></div>
+          <div class="role-selector-wrap"><span class="eyebrow">PILIH ROLE LATIHAN</span><div class="role-selector" id="roleSelector" role="group" aria-label="Pilih role latihan"></div></div>
           <div class="role-summary surface-panel"><div class="role-summary-title"><span class="role-emblem" id="roleEmblem"></span><div><span class="eyebrow">ROLE PROGRESS</span><strong id="roleCount">0 / 0 SKILL</strong></div></div><strong class="role-percent" id="rolePercent">0%</strong><div class="progress-track"><span id="roleBar"></span></div></div>
           <label class="role-search-box" for="skillSearch"><span aria-hidden="true">⌕</span><input id="skillSearch" type="search" placeholder="Cari role, skill, atau hero..." autocomplete="off"></label>
           <div class="checklist-groups" id="checklistGroups"></div>
@@ -210,6 +213,122 @@
           </section>
         </section>
 
+        <section class="view draft-view" id="draftView" aria-labelledby="draftTitle" hidden>
+          <div class="page-intro">
+            <div class="eyebrow">🎯 TRAINING / DRAFT ANALYSIS</div>
+            <h1 id="draftTitle">DRAFT <span>LAB</span><small>SEASON 42</small></h1>
+            <p>Belajar membaca draft, menentukan ban priority, dan membangun komposisi tim yang lebih kuat.</p>
+          </div>
+          <div class="draft-workspace">
+            <section class="draft-controls surface-panel" aria-label="Draft settings">
+              <div class="draft-mode-tabs" role="tablist" aria-label="Mode draft">
+                <button class="draft-mode-tab is-selected" id="draftModeRanked" type="button" role="tab" aria-selected="true" aria-controls="draftModeInfo" data-draft-mode="ranked">RANKED</button>
+                <button class="draft-mode-tab" id="draftModeTournament" type="button" role="tab" aria-selected="false" aria-controls="draftModeInfo" data-draft-mode="tournament">MPL / TOURNAMENT</button>
+                <button class="draft-mode-tab" id="draftModePractice" type="button" role="tab" aria-selected="false" aria-controls="draftModeInfo" data-draft-mode="practice">PRACTICE</button>
+              </div>
+              <div class="draft-setup-row">
+                <div class="draft-format-control" id="rankedFormatControl">
+                  <label for="rankedDraftFormat">FORMAT LATIHAN RANKED</label>
+                  <select id="rankedDraftFormat" aria-label="Pilih format simulasi Ranked">
+                    <option value="3">3 BAN · SIMULASI DASAR</option>
+                    <option value="5" selected>5 BAN · SIMULASI LENGKAP</option>
+                  </select>
+                </div>
+                <div class="draft-format-control" id="practiceFormatControl" hidden>
+                  <label for="practiceDraftFormat">FORMAT LATIHAN</label>
+                  <select id="practiceDraftFormat" aria-label="Pilih format latihan bebas">
+                    <option value="3">3 BAN</option>
+                    <option value="5" selected>5 BAN</option>
+                  </select>
+                </div>
+                <fieldset class="first-pick-control">
+                  <legend>FIRST PICK</legend>
+                  <div class="first-pick-buttons">
+                    <button class="first-pick-button is-selected" type="button" data-first-pick="blue" aria-pressed="true">BLUE</button>
+                    <button class="first-pick-button" type="button" data-first-pick="red" aria-pressed="false">RED</button>
+                  </div>
+                </fieldset>
+                <div class="first-pick-advantage" id="firstPickAdvantage" aria-live="polite"></div>
+              </div>
+              <p class="draft-mode-info" id="draftModeInfo" role="tabpanel">Simulasi ranked. Format dan aturan dapat berbeda menurut rank, server, atau pembaruan game.</p>
+              <p class="draft-format-note">Preset 3/5 ban di sini adalah format latihan, bukan klaim mapping rank resmi. Format draft ranked dapat berbeda antar-rank, server, dan season; verifikasi aturan dalam game sebelum digunakan sebagai referensi kompetitif.</p>
+            </section>
+
+            <section class="draft-board-panel surface-panel" aria-labelledby="draftBoardHeading">
+              <div class="draft-section-heading">
+                <div><span class="eyebrow">SEASON 42 / PICK &amp; BAN</span><h2 id="draftBoardHeading">DRAFT BOARD</h2></div>
+                <span class="draft-live-tag"><i></i> SIMULASI</span>
+              </div>
+              <div class="draft-board" id="draftBoard">
+                <section class="draft-side blue-side" aria-labelledby="blueSideHeading">
+                  <div class="draft-side-heading"><h3 id="blueSideHeading">BLUE SIDE</h3><span>TEAM A</span></div>
+                  <div class="draft-round"><h4>BAN PHASE 1</h4><div class="draft-slots" data-draft-slots="blue-bans-early"></div></div>
+                  <div class="draft-round"><h4>PICK PHASE 1</h4><div class="draft-slots" data-draft-slots="blue-picks-early"></div></div>
+                  <div class="draft-round draft-late-bans"><h4>BAN PHASE 2</h4><div class="draft-slots" data-draft-slots="blue-bans-late"></div></div>
+                  <div class="draft-round"><h4>PICK PHASE 2</h4><div class="draft-slots" data-draft-slots="blue-picks-late"></div></div>
+                </section>
+                <section class="draft-side red-side" aria-labelledby="redSideHeading">
+                  <div class="draft-side-heading"><h3 id="redSideHeading">RED SIDE</h3><span>TEAM B</span></div>
+                  <div class="draft-round"><h4>BAN PHASE 1</h4><div class="draft-slots" data-draft-slots="red-bans-early"></div></div>
+                  <div class="draft-round"><h4>PICK PHASE 1</h4><div class="draft-slots" data-draft-slots="red-picks-early"></div></div>
+                  <div class="draft-round draft-late-bans"><h4>BAN PHASE 2</h4><div class="draft-slots" data-draft-slots="red-bans-late"></div></div>
+                  <div class="draft-round"><h4>PICK PHASE 2</h4><div class="draft-slots" data-draft-slots="red-picks-late"></div></div>
+                </section>
+              </div>
+              <p class="draft-board-footnote" id="draftBoardStatus" aria-live="polite"></p>
+            </section>
+
+            <section class="draft-analysis-grid" aria-label="Draft analysis">
+              <section class="draft-analysis-panel surface-panel ban-priority-panel" aria-labelledby="banPriorityHeading">
+                <div class="draft-section-heading"><div><span class="eyebrow">VERIFIED DATA / RANKED</span><h2 id="banPriorityHeading">🔥 BAN PRIORITY</h2></div></div>
+                <div id="rankedPrioritySection">
+                  <p class="draft-panel-note" id="rankedPriorityNote"></p>
+                  <div id="rankedPriorityList"></div>
+                </div>
+                <div class="tournament-priority-note"><h3>🏆 MPL / TOURNAMENT</h3><p id="tournamentPriorityNote"></p></div>
+              </section>
+
+              <section class="draft-analysis-panel surface-panel" aria-labelledby="pickAssistantHeading">
+                <div class="draft-section-heading"><div><span class="eyebrow">YOUR NEXT DECISION</span><h2 id="pickAssistantHeading">🧠 PICK ASSISTANT</h2></div></div>
+                <label class="draft-field-label" for="analysisSide">TEAM YANG DIANALISIS<select id="analysisSide" aria-label="Pilih team untuk analisis draft"><option value="blue">Blue Side</option><option value="red">Red Side</option></select></label>
+                <label class="draft-field-label" for="assistantPick">YOUR PICK<select id="assistantPick" aria-label="Pilih hero sendiri untuk Pick Assistant"><option value="">Pilih hero di draft board</option></select></label>
+                <div class="assistant-details" id="assistantDetails" aria-live="polite"></div>
+                <div class="counter-alert" id="counterAlert" role="status" aria-live="polite"></div>
+              </section>
+
+              <section class="draft-analysis-panel surface-panel" aria-labelledby="compositionHeading">
+                <div class="draft-section-heading"><div><span class="eyebrow">ROLE COVERAGE / DERIVED</span><h2 id="compositionHeading">🧩 TEAM COMPOSITION</h2></div></div>
+                <div class="composition-teams" id="compositionTeams"></div>
+                <p class="draft-panel-note">Pemeriksaan damage/frontline/objective adalah heuristik role untuk latihan, bukan analisis kit hero. Crowd control dan wave clear memerlukan data kemampuan hero yang belum tersedia.</p>
+                <div class="composition-warning" id="compositionWarning" aria-live="polite"></div>
+              </section>
+
+              <section class="draft-analysis-panel surface-panel" aria-labelledby="recommendationsHeading">
+                <div class="draft-section-heading"><div><span class="eyebrow">UP TO 3 / DERIVED</span><h2 id="recommendationsHeading">⭐ RECOMMENDED PICK</h2></div></div>
+                <div id="recommendedPicks" aria-live="polite"></div>
+              </section>
+
+              <section class="draft-analysis-panel surface-panel draft-score-panel" aria-labelledby="draftScoreHeading">
+                <div class="draft-section-heading"><div><span class="eyebrow">SIMULASI INTERNAL</span><h2 id="draftScoreHeading">DRAFT SCORE</h2></div></div>
+                <p class="draft-score-disclaimer">Simulasi internal — bukan prediksi hasil pertandingan atau statistik resmi MLBB.</p>
+                <div id="draftScores"></div>
+              </section>
+
+              <section class="draft-analysis-panel surface-panel history-panel" aria-labelledby="draftHistoryHeading">
+                <div class="draft-section-heading"><div><span class="eyebrow">LOCAL BROWSER STORAGE</span><h2 id="draftHistoryHeading">📜 DRAFT HISTORY</h2></div></div>
+                <p class="draft-panel-note">Draft tersimpan hanya di browser perangkat ini.</p>
+                <div class="draft-history-actions">
+                  <button class="secondary-button" id="resetDraft" type="button" aria-label="Reset semua pilihan pada draft saat ini">RESET DRAFT</button>
+                  <button class="primary-button" id="saveDraft" type="button" aria-label="Simpan draft saat ini ke riwayat lokal">SAVE DRAFT</button>
+                  <button class="quiet-button" id="clearDraftHistory" type="button" aria-label="Hapus seluruh draft history lokal">CLEAR HISTORY</button>
+                </div>
+                <p class="draft-storage-status" id="draftStorageStatus" role="status" aria-live="polite"></p>
+                <div id="draftHistoryList"></div>
+              </section>
+            </section>
+          </div>
+        </section>
+
         <section class="view progress-view" id="progressView" aria-labelledby="progressTitle" hidden>
           <div class="page-intro"><div class="eyebrow">ANALYTICS / YOUR TRAINING</div><h1 id="progressTitle">SKILL <span>PROGRESS.</span></h1><p>Setiap centang adalah satu langkah menuju permainan yang lebih baik.</p></div>
           <div class="analytics-overview surface-panel"><div><span class="eyebrow">OVERALL COMPLETION</span><strong class="analytics-total" id="analyticsPercent">0%</strong><span class="muted-copy" id="analyticsCount">0 dari 0 skill selesai</span></div><div class="analytics-track"><span id="analyticsBar"></span></div></div>
@@ -240,7 +359,7 @@
         <footer class="page-footer"><span>NOXX127 <span class="footer-slash">/</span> PERSONAL MLBB TRAINING HUB</span><span>BUILT FOR THE NEXT MATCH <span class="footer-star">✳</span></span></footer>
       </main>
     </div>
-    <nav class="mobile-nav" aria-label="Navigasi mobile"><button type="button" class="mobile-nav-link is-active" data-view="dashboard"><span>⌂</span>Home</button><button type="button" class="mobile-nav-link" data-view="role" data-role="jungle"><span>🎮</span>Skills</button><button type="button" class="mobile-nav-link" data-view="meta"><span>🔥</span>Hero Meta S42</button><button type="button" class="mobile-nav-link" data-view="progress"><span>◷</span>Progress</button><button type="button" class="mobile-nav-link" id="mobileMenuButton"><span>☰</span>Menu</button></nav>
+    <nav class="mobile-nav" aria-label="Navigasi mobile"><button type="button" class="mobile-nav-link is-active" data-view="dashboard"><span>⌂</span>Home</button><button type="button" class="mobile-nav-link" data-view="role"><span>🎮</span>Skills</button><button type="button" class="mobile-nav-link" data-view="meta"><span>🔥</span>Hero Meta S42</button><button type="button" class="mobile-nav-link" data-view="progress"><span>◷</span>Progress</button><button type="button" class="mobile-nav-link" id="mobileMenuButton"><span>☰</span>Menu</button></nav>
   </div>
 
   <dialog class="hero-dialog" id="heroDialog" aria-labelledby="dialogName">
