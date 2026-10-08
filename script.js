@@ -176,6 +176,11 @@ const storageKey = "noxx127-mlbb-skill-wishlist-v1";
 const progressStorageKey = "noxx127-skill-progress-v2";
 const calculatorStorageKey = "noxx127-wr-calculator-v1";
 const reviewStorageKey = "noxx127-match-review-v1";
+const dataService = window.NoxxDataService;
+let activeMetaTier = "ALL";
+let metaSearchQuery = "";
+let simulationSummary = "Masukkan data WR untuk simulasi.";
+const liveDataRefreshStatus = { meta: null, tournament: null };
 const rankOptions = ["Warrior", "Elite", "Master", "Grandmaster", "Epic", "Legend", "Mythic", "Mythical Honor", "Mythical Glory", "Mythical Immortal"];
 const heroGrid = document.getElementById("heroGrid");
 const heroSearch = document.getElementById("heroSearch");
@@ -219,10 +224,12 @@ function loadProgress() {
     const saved = stored && typeof stored === "object" && !Array.isArray(stored) ? stored : {};
     legacyHeroProgressFound = Object.hasOwn(saved, "heroCompleted");
     const savedProgress = Object.fromEntries(Object.entries(saved).filter(([key]) => key !== "heroCompleted"));
-    const calculatorValue = saved.calculator && typeof saved.calculator === "object" ? saved.calculator : defaultProgress.calculator;
+    const calculatorValue = saved.calculator && typeof saved.calculator === "object" ? saved.calculator : dataService.loadCalculator();
+    const calculatorMatches = calculatorValue.currentMatch ?? calculatorValue.totalMatch;
+    const calculatorWins = calculatorValue.currentWin ?? calculatorValue.totalWin;
     const safeCalculator = {
-      totalMatch: Number.isFinite(Number(calculatorValue.totalMatch)) ? Math.max(0, Number(calculatorValue.totalMatch)) : 0,
-      totalWin: Number.isFinite(Number(calculatorValue.totalWin)) ? Math.max(0, Number(calculatorValue.totalWin)) : 0,
+      totalMatch: Number.isSafeInteger(Number(calculatorMatches)) ? Math.max(0, Number(calculatorMatches)) : 0,
+      totalWin: Number.isSafeInteger(Number(calculatorWins)) ? Math.max(0, Number(calculatorWins)) : 0,
       targetWR: Number.isFinite(Number(calculatorValue.targetWR)) ? Math.min(100, Math.max(0, Number(calculatorValue.targetWR))) : 65,
       requiredWins: Number.isFinite(Number(calculatorValue.requiredWins)) ? Number(calculatorValue.requiredWins) : 0
     };
@@ -259,7 +266,11 @@ function saveProgress() {
     state.trainingState.calculator = { ...state.progress.calculator };
     localStorage.setItem(progressStorageKey, JSON.stringify(state.progress));
     localStorage.setItem(storageKey, JSON.stringify(state.wishlist));
-    localStorage.setItem(calculatorStorageKey, JSON.stringify(state.progress.calculator));
+    const calculatorSave = dataService.saveCalculator(state.progress.calculator.totalMatch, state.progress.calculator.totalWin, state.progress.calculator.targetWR);
+    if (!calculatorSave.saved) {
+      showToast(calculatorSave.error);
+      return false;
+    }
     localStorage.setItem(reviewStorageKey, JSON.stringify(state.progress.matchReviews));
     return true;
   } catch {
@@ -421,27 +432,7 @@ function renderNotes() {
 }
 
 function calculateRequiredWins(matchCount, winCount, targetPercent) {
-  const matches = Number(matchCount);
-  const wins = Number(winCount);
-  const target = Number(targetPercent);
-  if (!Number.isSafeInteger(matches) || !Number.isSafeInteger(wins) || !Number.isFinite(target) || matches < 0 || wins < 0 || target < 0 || target > 100 || wins > matches) {
-    return { valid: false, message: "Input harus aman dan masuk akal.", required: 0, current: 0 };
-  }
-  const currentWr = matches > 0 ? wins / matches * 100 : 0;
-  if (matches === 0) {
-    return { valid: true, message: `0 match tercatat. Target ${target}% memerlukan ${Math.max(0, Math.ceil((target / 100) * 1 - wins))} kemenangan tambahan di match pertama.`, required: Math.max(0, Math.ceil(target / 100 - wins)), current: currentWr };
-  }
-  if (target >= 100) {
-    if (wins === matches) {
-      return { valid: true, message: "Win rate saat ini sudah memenuhi target 100%.", required: 0, current: currentWr };
-    }
-    return { valid: true, message: "Target 100% tidak dapat dicapai setelah tercatat kekalahan.", required: null, current: currentWr };
-  }
-  const required = Math.ceil((target * matches - 100 * wins) / (100 - target));
-  if (required <= 0) {
-    return { valid: true, message: `Win rate saat ini sudah memenuhi target ${target}%.`, required: 0, current: currentWr };
-  }
-  return { valid: true, message: `Perlu ${required} kemenangan tambahan untuk mencapai ${target}%.`, required, current: currentWr };
+  return dataService.calculateWR(matchCount, winCount, targetPercent);
 }
 
 function renderCalculator() {
@@ -453,11 +444,147 @@ function renderCalculator() {
   matchInput.value = calculator.totalMatch ?? 0;
   winInput.value = calculator.totalWin ?? 0;
   targetInput.value = calculator.targetWR ?? 65;
-  const result = calculateRequiredWins(calculator.totalMatch, calculator.totalWin, calculator.targetWR);
-  state.progress.calculator = { ...calculator, requiredWins: result.required };
+  updateCalculatorView();
+}
+
+function updateCalculatorView() {
+  const matchInput = document.getElementById("calcMatch");
+  const winInput = document.getElementById("calcWin");
+  const targetInput = document.getElementById("calcTarget");
+  if (!matchInput || !winInput || !targetInput) return;
+  const matches = matchInput.value.trim() ? Number(matchInput.value) : Number.NaN;
+  const wins = winInput.value.trim() ? Number(winInput.value) : Number.NaN;
+  const target = targetInput.value.trim() ? Number(targetInput.value) : Number.NaN;
+  const result = calculateRequiredWins(matches, wins, target);
   const output = document.getElementById("calcResult");
-  if (!output) return;
-  output.textContent = result.valid ? result.message : "Input tidak valid. Periksa match, win, dan target WR.";
+  if (output) output.textContent = result.message;
+  document.getElementById("currentWR").textContent = result.valid && result.current !== null ? `${result.current.toFixed(2)}%` : "N/A";
+  document.getElementById("targetWRValue").textContent = Number.isFinite(target) && target >= 0 && target <= 100 ? `${target.toFixed(2)}%` : "N/A";
+  document.getElementById("wrGap").textContent = result.valid && result.gap !== null ? `${result.gap.toFixed(2)}%` : "N/A";
+  document.getElementById("winNeeded").textContent = result.valid && result.required !== null ? String(result.required) : "N/A";
+  const progress = result.valid && result.current !== null ? (target === 0 ? 100 : Math.min(100, result.current / target * 100)) : 0;
+  document.getElementById("wrProgressText").textContent = result.valid && result.current !== null ? `${progress.toFixed(2)}%` : "N/A";
+  const progressBar = document.getElementById("wrProgressBar");
+  progressBar.style.width = `${progress}%`;
+  progressBar.parentElement.setAttribute("aria-valuenow", String(Math.round(progress)));
+  document.getElementById("simulationResult").textContent = simulationSummary;
+  document.querySelectorAll(".quick-target").forEach((button) => {
+    const selected = Number(button.dataset.target) === target;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function formatDataTimestamp(value) {
+  if (!value || !Number.isFinite(Date.parse(value))) return "N/A";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${value}T00:00:00Z`));
+  }
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta", timeZoneName: "short"
+  }).format(new Date(value));
+}
+
+function renderMeta() {
+  const data = dataService.getCached("meta");
+  const roleNames = { jungle: "🌲 Jungle", roam: "🛡️ Roam", exp: "⚔️ EXP Lane", gold: "💰 Gold Lane", mid: "🔮 Mid Lane" };
+  const timestamp = dataService.getLastUpdated("meta");
+  const status = data?.status === "source-fetched"
+    ? `Sumber berhasil diakses ${formatDataTimestamp(data.fetchedAt)}. Ranked stats mengikuti snapshot harian.`
+    : data ? "Latest verified snapshot — data ranked berdasarkan snapshot harian, bukan real-time." : "Data terbaru tidak tersedia.";
+  const displayedHeroCount = data ? Object.values(data.roles).reduce((count, entries) => count + entries.length, 0) : 0;
+  const totalHeroCount = data?.heroCount || displayedHeroCount;
+  document.getElementById("metaSnapshotInfo").textContent = `${data?.season || "Season 42"} · Patch ${data?.patch || "2.2.16"} · ${displayedHeroCount}${totalHeroCount > displayedHeroCount ? ` dari ${totalHeroCount}` : ""} heroes`;
+  document.getElementById("metaDataStatus").textContent = liveDataRefreshStatus.meta || status;
+  document.getElementById("metaTimestamp").textContent = `${data?.status === "source-fetched" ? "Source snapshot updated" : "Last verified snapshot"}: ${formatDataTimestamp(timestamp)}`;
+  document.getElementById("metaSource").innerHTML = data
+    ? `${data.source.url ? `<a href="${escapeHTML(data.source.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(data.source.name)}</a>` : escapeHTML(data.source.name)}<span>Last updated: ${formatDataTimestamp(data.updatedAt)}</span>`
+    : "Data terbaru tidak tersedia.";
+  document.getElementById("metaRoleList").innerHTML = Object.entries(roleNames).map(([roleId, roleName]) => {
+    const entries = data?.roles[roleId] || [];
+    const filtered = entries.filter((hero) => {
+      const tier = hero.tier.replace(/[-_ ]/g, "");
+      const tierMatches = activeMetaTier === "ALL" || tier === activeMetaTier.replace("-", "");
+      const searchMatches = hero.hero.toLocaleLowerCase("id").includes(metaSearchQuery);
+      return tierMatches && searchMatches;
+    });
+    return `<section class="meta-role-section"><h2>${roleName}</h2>${filtered.length ? `<div class="meta-hero-grid">${filtered.map((hero) => `
+      <article class="meta-hero-card">
+        <div class="meta-card-heading"><h3>${escapeHTML(hero.hero)}</h3><span>${escapeHTML(hero.tier)}</span></div>
+        <p>Role: ${escapeHTML(hero.role || "N/A")}</p>
+        <p>Win Rate: ${hero.winRate === null ? "N/A" : `${hero.winRate.toFixed(2)}%`}</p>
+        <p>Pick Rate: ${hero.pickRate === null ? "N/A" : `${hero.pickRate.toFixed(2)}%`}</p>
+        <p>Ban Rate: ${hero.banRate === null ? "N/A" : `${hero.banRate.toFixed(2)}%`}</p>
+        <p class="meta-recommendation">${escapeHTML(hero.recommendation || "Rekomendasi belum tersedia dari sumber.")}</p>
+        <small>Updated: ${formatDataTimestamp(data.updatedAt)}</small>
+        ${data.source.url ? `<a class="hero-source-link" href="${escapeHTML(data.source.url.replace(/\/tier-list\/?$/, `/heroes/${encodeURIComponent(hero.hero.toLowerCase().replace(/ and /g, "-").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""))}`))}" target="_blank" rel="noopener noreferrer">DETAIL HERO ↗</a>` : ""}
+      </article>`).join("")}</div>` : `<p class="empty-data">${data ? "Tidak ada hero yang cocok dengan filter." : "Data terbaru tidak tersedia."}</p>`}</section>`;
+  }).join("");
+}
+
+function renderTournament() {
+  const data = dataService.getCached("tournament");
+  const freshnessLabel = data?.status === "source-fetched" ? "Data source fetched" : "Latest verified snapshot";
+  document.getElementById("tournamentDataStatus").textContent = liveDataRefreshStatus.tournament || (data
+    ? `${freshnessLabel} — standings dan jadwal dari sumber resmi.`
+    : "Data terbaru tidak tersedia.");
+  document.getElementById("tournamentTimestamp").textContent = `Last updated: ${formatDataTimestamp(dataService.getLastUpdated("tournament"))}`;
+  document.getElementById("standingsTimestamp").textContent = `Last updated: ${formatDataTimestamp(dataService.getLastUpdated("tournament"))}`;
+  document.getElementById("tournamentSource").innerHTML = data
+    ? `${data.source.url ? `<a href="${escapeHTML(data.source.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(data.source.name)}</a>` : escapeHTML(data.source.name)}<span>Last updated: ${formatDataTimestamp(data.updatedAt)}</span>`
+    : "Data terbaru tidak tersedia.";
+  document.getElementById("tournamentName").textContent = data ? `${data.tournament}${data.season ? ` ${data.season}` : ""}` : "MPL INDONESIA";
+  document.getElementById("competitionStatus").textContent = `Status kompetisi: ${data?.competitionStatus || "Data belum tersedia dari sumber."}`;
+  document.getElementById("playoffInformation").textContent = data?.playoff ? `Informasi playoff: ${data.playoff}` : "Informasi playoff: Data belum tersedia dari sumber.";
+  const standings = document.getElementById("standingsRows");
+  standings.innerHTML = data?.standings.length ? data.standings.map((row) => `
+    <tr><td>${row.rank ?? "N/A"}</td><td>${escapeHTML(row.team)}</td>
+    <td>${row.matchW === null || row.matchL === null ? "N/A" : `${row.matchW}-${row.matchL}`}</td>
+    <td>${row.gameW === null || row.gameL === null ? "N/A" : `${row.gameW}-${row.gameL}`}</td>
+    <td>${row.points ?? "N/A"}</td></tr>`).join("") : '<tr><td colspan="5">Data terbaru tidak tersedia.</td></tr>';
+  const renderMatches = (items, emptyText) => items.length ? items.map((match) => {
+    const final = match.status === "COMPLETED";
+    const score = final ? `<div class="match-score"><strong>${match.scoreA ?? "N/A"}</strong><span>FINAL</span><strong>${match.scoreB ?? "N/A"}</strong></div>` : '<div class="match-score"><span>VS</span></div>';
+    return `<article class="match-card"><span class="match-status">${match.status}</span><div class="match-teams"><strong>${escapeHTML(match.teamA)}</strong>${score}<strong>${escapeHTML(match.teamB)}</strong></div><p>Tanggal: ${escapeHTML(match.date || "N/A")}</p><p>Jam: ${escapeHTML(match.time || "N/A")}</p><p>Status: ${match.status}</p></article>`;
+  }).join("") : `<p class="empty-data">${emptyText}</p>`;
+  const allMatches = data?.matches || [];
+  const upcoming = allMatches.filter((match) => match.status === "UPCOMING");
+  const completed = data?.completedMatches?.length ? data.completedMatches : allMatches.filter((match) => match.status === "COMPLETED");
+  document.getElementById("upcomingMatches").innerHTML = renderMatches(upcoming, "Data pertandingan mendatang belum tersedia dari sumber.");
+  const completedEmptyMessage = data?.completedStatus === "unavailable"
+    ? `Data pertandingan selesai tidak dapat diambil dari sumber. ${data.completedWarning || ""}`.trim()
+    : "Data pertandingan selesai belum tersedia dari sumber.";
+  document.getElementById("completedMatches").innerHTML = renderMatches(completed, completedEmptyMessage);
+  const stats = document.getElementById("tournamentStats");
+  stats.textContent = data?.stats && Object.keys(data.stats).length ? JSON.stringify(data.stats, null, 2) : "Data belum tersedia dari sumber.";
+}
+
+async function refreshLiveData(type) {
+  const isMeta = type === "meta";
+  const button = document.getElementById(isMeta ? "refreshMeta" : "refreshTournament");
+  const status = document.getElementById(isMeta ? "metaDataStatus" : "tournamentDataStatus");
+  button.disabled = true;
+  button.setAttribute("aria-busy", "true");
+  liveDataRefreshStatus[type] = null;
+  status.textContent = "⏳ Mengambil data terbaru...";
+  try {
+    const result = isMeta ? await dataService.fetchMetaData() : await dataService.fetchTournamentData();
+    if (result.saved) {
+      liveDataRefreshStatus[type] = `🟢 Sumber berhasil diakses ${formatDataTimestamp(result.data.fetchedAt)}. ${isMeta ? "Statistik ranked diperbarui berdasarkan snapshot harian." : "Data kompetitif diperbarui dari MPL Indonesia."}`;
+    } else {
+      liveDataRefreshStatus[type] = `🟢 Sumber berhasil diakses ${formatDataTimestamp(result.data.fetchedAt)}. ${result.warning || "Cache lokal tidak dapat disimpan."}`;
+    }
+  } catch (error) {
+    const cached = dataService.getCached(type);
+    liveDataRefreshStatus[type] = cached
+      ? `🔴 DATA TIDAK DAPAT DIPERBARUI — Latest verified snapshot. Using cached data. (${error.message})`
+      : `🔴 DATA TIDAK DAPAT DIPERBARUI — Data terbaru tidak tersedia. (${error.message})`;
+  } finally {
+    button.disabled = false;
+    button.removeAttribute("aria-busy");
+    if (isMeta) renderMeta();
+    else renderTournament();
+  }
 }
 
 function renderReview() {
@@ -518,6 +645,8 @@ function render() {
   renderProgress();
   renderNotes();
   renderCalculator();
+  renderMeta();
+  renderTournament();
   renderReview();
   renderJourney();
   document.getElementById("rankSelect").value = state.progress.rank;
@@ -764,16 +893,16 @@ if (reviewList) {
 const calcMatch = document.getElementById("calcMatch");
 const calcWin = document.getElementById("calcWin");
 const calcTarget = document.getElementById("calcTarget");
-const calcResult = document.getElementById("calcResult");
 
 function syncCalculatorState() {
+  simulationSummary = "Simulation reset. Pilih streak untuk melihat perkiraan WR.";
   const stateData = {
     totalMatch: calcMatch?.value.trim() ? Number(calcMatch.value) : Number.NaN,
     totalWin: calcWin?.value.trim() ? Number(calcWin.value) : Number.NaN,
     targetWR: calcTarget?.value.trim() ? Number(calcTarget.value) : Number.NaN
   };
   const result = calculateRequiredWins(stateData.totalMatch, stateData.totalWin, stateData.targetWR);
-  if (calcResult) calcResult.textContent = result.message;
+  updateCalculatorView();
   if (!result.valid) return;
   state.progress.calculator = { ...stateData, requiredWins: result.required };
   saveProgress();
@@ -792,6 +921,26 @@ document.querySelectorAll(".quick-target").forEach((button) => {
   });
 });
 
+document.getElementById("metaSearch").addEventListener("input", (event) => {
+  metaSearchQuery = event.currentTarget.value.trim().toLocaleLowerCase("id");
+  renderMeta();
+});
+
+document.querySelectorAll("[data-tier]").forEach((button) => {
+  button.addEventListener("click", () => {
+    activeMetaTier = button.dataset.tier;
+    document.querySelectorAll("[data-tier]").forEach((filter) => {
+      const selected = filter === button;
+      filter.classList.toggle("is-selected", selected);
+      filter.setAttribute("aria-pressed", String(selected));
+    });
+    renderMeta();
+  });
+});
+
+document.getElementById("refreshMeta").addEventListener("click", () => refreshLiveData("meta"));
+document.getElementById("refreshTournament").addEventListener("click", () => refreshLiveData("tournament"));
+
 document.querySelectorAll(".simulate-btn").forEach((button) => {
   button.addEventListener("click", () => {
     const simMode = button.dataset.sim;
@@ -805,19 +954,22 @@ document.querySelectorAll(".simulate-btn").forEach((button) => {
     }
     const nextMatches = matches + value;
     if (!Number.isSafeInteger(nextMatches)) {
-      if (calcResult) calcResult.textContent = "Input tidak valid. Jumlah match terlalu besar.";
+      simulationSummary = "Simulasi tidak dapat dihitung: jumlah match terlalu besar.";
+      updateCalculatorView();
       return;
     }
-    if (calcMatch) calcMatch.value = String(nextMatches);
+    let nextWins = wins;
     if (simMode === "win") {
-      const nextWins = wins + value;
+      nextWins = wins + value;
       if (!Number.isSafeInteger(nextWins)) {
-        if (calcResult) calcResult.textContent = "Input tidak valid. Jumlah win terlalu besar.";
+        simulationSummary = "Simulasi tidak dapat dihitung: jumlah win terlalu besar.";
+        updateCalculatorView();
         return;
       }
-      if (calcWin) calcWin.value = String(nextWins);
     }
-    syncCalculatorState();
+    const simulatedWR = dataService.formatWR(nextMatches, nextWins);
+    simulationSummary = `Setelah ${simMode === "win" ? "+" : "-"}${value} ${simMode === "win" ? "Win" : "Loss"}: Match ${nextMatches}, Win ${nextWins}, WR ${simulatedWR}.`;
+    updateCalculatorView();
   });
 });
 
@@ -825,6 +977,7 @@ const calculatorReset = document.getElementById("calculatorReset");
 if (calculatorReset) {
   calculatorReset.addEventListener("click", () => {
     const blank = { totalMatch: 0, totalWin: 0, targetWR: 65, requiredWins: 0 };
+    simulationSummary = "Masukkan data WR untuk simulasi.";
     state.progress.calculator = blank;
     if (calcMatch) calcMatch.value = "0";
     if (calcWin) calcWin.value = "0";
@@ -925,3 +1078,5 @@ document.addEventListener("keydown", (event) => {
 render();
 if (legacyHeroProgressFound) saveProgress();
 if (storageWarning) showToast("Data progress tersimpan rusak dan dimuat ulang dengan aman.");
+refreshLiveData("meta");
+refreshLiveData("tournament");

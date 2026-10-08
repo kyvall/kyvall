@@ -586,9 +586,54 @@ body { min-width: 320px; background: var(--canvas); }
 .role-search-box { max-width: 480px; min-height: 42px; display: flex; align-items: center; gap: 10px; margin: 0 clamp(22px, 5vw, 75px) 16px; padding: 0 12px; border: 1px solid #334034; background: #101511; color: #a2afa4; }
 .role-search-box > span { font-size: 20px; }
 .role-search-box input { min-width: 0; width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 11px; }
-.meta-placeholder { max-width: 760px; margin: 24px clamp(22px, 5vw, 75px); padding: 24px; }
-.meta-placeholder h2 { margin: 0; color: var(--acid); font: 700 23px/1 var(--display); }
-.meta-placeholder p { margin: 12px 0 0; color: #9aa69a; font-size: 12px; line-height: 1.7; }
+.live-data-panel { min-width: 0; margin: 20px clamp(22px, 5vw, 75px); padding: 18px; }
+.live-data-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.live-data-heading > div { min-width: 0; }
+.live-data-heading p { margin: 8px 0 0; color: #c4d3c2; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.live-data-heading button { flex: 0 0 auto; }
+.data-timestamp { color: #87968a; font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.data-source-card { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-top: 13px; padding: 12px; border: 1px solid #2b362c; background: #111712; }
+.data-source-card strong { color: var(--acid); font: 700 12px/1 var(--display); }
+.data-source-card p { display: flex; flex-wrap: wrap; gap: 7px 14px; margin: 0; color: #a5b0a5; font-size: 10px; overflow-wrap: anywhere; }
+.data-source-card a { color: #d3e8c3; overflow-wrap: anywhere; }
+.meta-controls { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 20px clamp(22px, 5vw, 75px); }
+.meta-search { display: grid; gap: 7px; width: min(340px, 100%); color: #94a195; font: 700 10px/1 var(--body); }
+.meta-search input { width: 100%; min-width: 0; min-height: 40px; padding: 0 10px; border: 1px solid #3b493b; color: var(--ink); background: #111711; }
+.meta-tier-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.meta-tier-filters button { min-height: 38px; padding: 0 12px; border: 1px solid #3b493b; color: #c6d5c6; background: #141b14; cursor: pointer; }
+.meta-tier-filters button.is-selected { border-color: var(--acid); color: var(--acid); }
+.meta-role-list { display: grid; gap: 18px; margin: 0 clamp(22px, 5vw, 75px) 24px; }
+.meta-role-section, .tournament-data-section { min-width: 0; }
+.meta-role-section h2, .tournament-data-section h2 { margin: 0 0 12px; color: var(--acid); font: 700 23px/1 var(--display); }
+.meta-hero-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.meta-hero-card, .match-card { min-width: 0; padding: 14px; border: 1px solid #2b362c; background: #111712; overflow-wrap: anywhere; }
+.meta-card-heading { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+.meta-card-heading h3 { margin: 0; font: 700 19px/1.1 var(--display); }
+.meta-card-heading span, .match-status { flex: 0 0 auto; color: var(--acid); font: 700 10px/1.2 var(--display); }
+.meta-hero-card p { margin: 8px 0 0; color: #a5b0a5; font-size: 10px; }
+.meta-hero-card .meta-recommendation { color: #c6d5c6; line-height: 1.5; }
+.meta-hero-card small { display: block; margin-top: 11px; color: #87968a; font-size: 9px; }
+.hero-source-link { display: inline-block; margin-top: 10px; color: var(--acid); font: 700 10px/1 var(--display); text-decoration: none; }
+.hero-source-link:hover { text-decoration: underline; }
+.empty-data { color: #a5b0a5; font-size: 11px; }
+.tournament-data-section { margin: 22px clamp(22px, 5vw, 75px); }
+.tournament-data-section h3 { margin: 22px 0 10px; color: var(--ink); font: 700 17px/1 var(--display); }
+.tournament-data-section > p { color: #a5b0a5; font-size: 11px; }
+.standings-scroll { width: 100%; overflow-x: auto; border: 1px solid #2b362c; }
+.standings-table { width: 100%; min-width: 560px; border-collapse: collapse; text-align: left; }
+.standings-table th, .standings-table td { padding: 11px 12px; border-bottom: 1px solid #2b362c; white-space: nowrap; font-size: 10px; }
+.standings-table th { color: var(--acid); background: #141b14; font: 700 11px/1 var(--display); }
+.standings-table td { color: #c0c9bf; }
+.standings-table tbody tr:last-child td { border-bottom: 0; }
+.tournament-matches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.match-teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; margin: 14px 0; }
+.match-teams > strong { min-width: 0; overflow-wrap: anywhere; font: 700 18px/1.05 var(--display); }
+.match-teams > strong:last-child { text-align: right; }
+.match-score { display: grid; grid-auto-flow: column; align-items: center; gap: 7px; }
+.match-score strong { color: var(--acid); font: 700 21px/1 var(--display); }
+.match-score span { color: #91a090; font-size: 9px; }
+.match-card p { margin: 6px 0 0; color: #a5b0a5; font-size: 10px; }
+.tournament-stats { max-width: 100%; overflow: auto; padding: 12px; border: 1px solid #2b362c; color: #a5b0a5; background: #111712; font-size: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .rank-progress-summary { display: grid; grid-template-columns: 1fr auto; gap: 5px; margin: 24px 0 8px; color: #869386; font: 700 8px/1 var(--body); letter-spacing: .6px; }
 .rank-progress-summary strong { grid-column: 2; grid-row: 1 / span 2; color: var(--acid); font: 700 23px/1 var(--display); }
 .rank-progress-summary small { color: #8d998e; font: 500 9px/1.3 var(--body); letter-spacing: 0; }
@@ -629,13 +674,29 @@ body { min-width: 320px; background: var(--canvas); }
 .calculator-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; align-content: start; }
 .calculator-form label, .journey-header label { display: grid; gap: 8px; min-width: 0; color: #94a195; font-size: 10px; }
 .calculator-form input, .journey-header select { width: 100%; min-width: 0; min-height: 40px; padding: 0 10px; border: 1px solid #3b493b; border-radius: 2px; color: var(--ink); background: #111711; }
+.calculator-section-title { grid-column: 1 / -1; margin: 0; color: var(--acid); font: 700 18px/1 var(--display); }
+.calculator-section-title.target-title { margin-top: 6px; }
+.current-wr-box { min-width: 0; display: grid; align-content: center; gap: 6px; padding: 9px; border: 1px solid #2b362c; background: #111712; }
+.current-wr-box span, .target-progress span { color: #94a195; font: 700 9px/1 var(--body); }
+.current-wr-box strong { color: var(--acid); font: 700 23px/1 var(--display); overflow-wrap: anywhere; }
 .quick-targets { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 7px; }
 .quick-target, .simulate-btn { min-height: 38px; padding: 0 12px; border: 1px solid #3b493b; color: #c6d5c6; background: #141b14; cursor: pointer; }
 .quick-target:hover, .simulate-btn:hover { border-color: var(--acid); color: var(--acid); }
+.quick-target.is-selected { border-color: var(--acid); color: var(--acid); background: #1b2517; }
+.target-progress { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 13px; border: 1px solid #2b362c; background: #111712; }
+.target-progress > div:not(.wr-progress-track) { display: grid; gap: 6px; }
+.target-progress strong { color: #d3e8c3; font: 700 16px/1 var(--display); overflow-wrap: anywhere; }
+.target-progress .progress-label { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
+.wr-progress-track { grid-column: 1 / -1; height: 9px; overflow: hidden; background: #283329; }
+.wr-progress-track span { width: 0; height: 100%; display: block; background: var(--acid); transition: width 180ms ease; }
 .calculator-side { display: grid; gap: 14px; align-content: start; min-width: 0; }
 .result-box { min-height: 76px; display: flex; align-items: center; padding: 15px; border: 1px solid #43543a; color: var(--acid); background: #141b12; line-height: 1.5; overflow-wrap: anywhere; }
+.win-needed { margin: -4px 0 0; color: #a5b0a5; font: 700 12px/1.4 var(--display); }
+.win-needed strong { color: var(--acid); }
 .sim-box { padding: 14px; border: 1px solid #2c372d; }
 .sim-box h3 { margin: 0 0 10px; font: 700 16px/1 var(--display); }
+.sim-box h3:not(:first-child) { margin-top: 17px; }
+.sim-box > p { margin: 13px 0 0; color: #a5b0a5; font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
 .sim-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .sim-actions + .sim-actions { margin-top: 8px; }
 .sim-actions .simulate-btn { flex: 1 1 auto; padding-inline: 8px; font-size: 9px; }
@@ -664,13 +725,28 @@ body { min-width: 320px; background: var(--canvas); }
 .milestone-card > span { flex: 0 0 auto; }
 .milestone-card h3 { margin: 0; font: 700 15px/1.1 var(--display); }
 .milestone-card p { margin: 6px 0 0; color: #93a093; font-size: 10px; line-height: 1.5; }
+@media (max-width: 900px) {
+  .calculator-grid { grid-template-columns: 1fr; }
+}
 @media (max-width: 760px) {
   .tournament-disclaimer { margin: 14px 15px 0; }
+  .live-data-panel { margin: 16px 15px; padding: 14px; }
+  .live-data-heading { align-items: start; flex-direction: column; }
+  .live-data-heading button { width: 100%; }
+  .meta-controls, .meta-role-list { margin-inline: 15px; }
+  .meta-controls { align-items: stretch; flex-direction: column; }
+  .meta-search { width: 100%; }
+  .meta-tier-filters button { flex: 1 1 auto; padding-inline: 9px; }
+  .meta-hero-grid, .tournament-matches { grid-template-columns: 1fr; }
+  .tournament-data-section { margin: 18px 15px; }
+  .standings-scroll { max-width: 100%; }
   .tournament-grid, .strategy-grid { grid-template-columns: 1fr; gap: 8px; margin-inline: 15px; }
   .strategy-panel { margin: 18px 15px; }
   .calculator-panel, .review-panel, .journey-panel { margin: 16px 15px; padding: 15px; }
   .calculator-grid { grid-template-columns: 1fr; gap: 14px; }
   .calculator-form { grid-template-columns: 1fr; }
+  .calculator-section-title, .target-progress { grid-column: 1; }
+  .current-wr-box { min-height: 62px; }
   .quick-targets { grid-column: auto; }
   .review-list { grid-template-columns: 1fr; }
   .journey-header { grid-template-columns: 1fr; }

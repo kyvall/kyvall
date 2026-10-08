@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="verified-snapshots.js" defer></script>
+  <script src="data-service.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body>
@@ -90,21 +92,40 @@
         </section>
 
         <section class="view watchlist-view" id="watchlistView" aria-labelledby="watchlistTitle" hidden>
-          <div class="page-intro"><div class="eyebrow">🔥 HERO META / SEASON 42</div><h1 id="watchlistTitle">HERO <span>META S42.</span></h1><p>Data meta kompetitif Season 42 belum ditampilkan karena sumber yang dapat diverifikasi belum tersedia.</p></div>
-          <section class="meta-placeholder surface-panel" aria-live="polite">
-            <h2>DATA PERLU DIVERIFIKASI</h2>
-            <p>Daftar hero, tier, dan statistik Meta S42 akan ditampilkan setelah tersedia sumber tepercaya yang sesuai dengan Season 42. Tidak ada daftar hero yang diasumsikan sebagai meta.</p>
+          <div class="page-intro"><div class="eyebrow">🔥 HERO META / SEASON 42</div><h1 id="watchlistTitle">HERO <span>META S42.</span></h1><p>Data ranked berasal dari snapshot harian sumber, bukan real-time second-by-second.</p></div>
+          <section class="live-data-panel surface-panel" aria-live="polite">
+            <div class="live-data-heading"><div><span class="eyebrow">DATA TERBARU</span><p id="metaSnapshotInfo">Season 42 · Patch 2.2.16</p><p id="metaDataStatus">Loading verified snapshot...</p></div><button class="secondary-button" id="refreshMeta" type="button">↻ REFRESH DATA</button></div>
+            <p class="data-timestamp" id="metaTimestamp">Last verified snapshot: 8 Oktober 2026</p>
+            <section class="data-source-card"><strong>DATA SOURCE</strong><p id="metaSource">Data terbaru tidak tersedia.</p></section>
           </section>
+          <div class="meta-controls">
+            <label class="meta-search" for="metaSearch">CARI HERO<input id="metaSearch" type="search" placeholder="Cari hero..." autocomplete="off"></label>
+            <div class="meta-tier-filters" role="group" aria-label="Filter tier"><button type="button" data-tier="ALL" class="is-selected" aria-pressed="true">ALL</button><button type="button" data-tier="S-TIER" aria-pressed="false">S-TIER</button><button type="button" data-tier="A-TIER" aria-pressed="false">A-TIER</button><button type="button" data-tier="B-TIER" aria-pressed="false">B-TIER</button></div>
+          </div>
+          <div class="meta-role-list" id="metaRoleList"></div>
         </section>
 
         <section class="view tournament-view" id="tournamentView" aria-labelledby="tournamentTitle" hidden>
-          <div class="page-intro"><div class="eyebrow">🏆 TOURNAMENT LAB / COMPETITIVE INTENT</div><h1 id="tournamentTitle">TOURNAMENT <span>LAB.</span></h1><p>Latih strategi kompetitif tanpa mengandalkan data meta yang belum terverifikasi.</p></div>
-          <p class="tournament-disclaimer">Lab ini berisi kerangka strategi umum, bukan statistik, hasil pertandingan, atau daftar pick turnamen.</p>
-          <div class="tournament-grid">
-            <article class="surface-panel tournament-card"><h3>🔥 Tournament Priority</h3><ul><li>Prioritas utama dipilih berdasarkan kebutuhan team dan role.</li><li>Fokus pada hero yang stabil dalam kompetisi.</li><li>Gunakan data yang bisa diverifikasi dan relevan dengan format pertandingan.</li></ul></article>
-            <article class="surface-panel tournament-card"><h3>🟢 Competitive Pick</h3><ul><li>Hero dengan win condition yang jelas.</li><li>Kuat untuk kompensasi laning dan skema tim.</li><li>Memberikan adaptasi yang sehat terhadap draft.</li></ul></article>
-            <article class="surface-panel tournament-card"><h3>🟡 Situational Pick</h3><ul><li>Hero yang sangat kuat dalam kondisi tertentu.</li><li>Lebih tergantung pada draft, matchup, atau pilihan fase permainan.</li><li>Disimpan sebagai opsi adaptif, bukan prioritas utama.</li></ul></article>
-          </div>
+          <div class="page-intro"><div class="eyebrow">🏆 TOURNAMENT LAB / COMPETITIVE DATA</div><h1 id="tournamentTitle">TOURNAMENT <span>LAB.</span></h1><p>Data pertandingan dan standings ditampilkan hanya dari sumber resmi yang dapat diverifikasi.</p></div>
+          <section class="live-data-panel surface-panel" aria-live="polite">
+            <div class="live-data-heading"><div><span class="eyebrow">DATA TOURNAMENT TERBARU</span><p id="tournamentDataStatus">Data terbaru tidak tersedia.</p></div><button class="secondary-button" id="refreshTournament" type="button">↻ UPDATE TOURNAMENT DATA</button></div>
+            <p class="data-timestamp" id="tournamentTimestamp">Last updated: N/A</p>
+            <section class="data-source-card"><strong>TOURNAMENT SOURCE</strong><p id="tournamentSource">Data terbaru tidak tersedia.</p></section>
+          </section>
+          <p class="tournament-disclaimer">Data tournament menunjukkan snapshot dari sumber resmi; hasil atau jadwal dapat berubah pada pembaruan sumber berikutnya.</p>
+          <section class="tournament-data-section">
+            <h2 id="tournamentName">MPL INDONESIA</h2>
+            <p id="competitionStatus">Status kompetisi: Regular Season</p>
+            <p id="playoffInformation">Informasi playoff: Data belum tersedia dari sumber.</p>
+            <h3>STANDINGS</h3>
+            <div class="standings-scroll" role="region" aria-label="Tournament standings" tabindex="0">
+              <table class="standings-table"><thead><tr><th>RANK</th><th>TEAM</th><th>MATCH W-L</th><th>GAME W-L</th><th>POINT</th></tr></thead><tbody id="standingsRows"><tr><td colspan="5">Data terbaru tidak tersedia.</td></tr></tbody></table>
+            </div>
+            <p class="data-timestamp" id="standingsTimestamp">Last updated: N/A</p>
+            <h3>UPCOMING MATCHES</h3><div class="tournament-matches" id="upcomingMatches"><p>Data belum tersedia dari sumber.</p></div>
+            <h3>COMPLETED MATCHES</h3><div class="tournament-matches" id="completedMatches"><p>Data belum tersedia dari sumber.</p></div>
+            <h3>TOURNAMENT STATS</h3><div class="tournament-stats" id="tournamentStats">Data belum tersedia dari sumber.</div>
+          </section>
           <div class="strategy-panel surface-panel">
             <div class="section-heading compact-heading"><div><div class="eyebrow">TEAM COMPOSITION</div><h2>STRATEGY <span>PRESETS</span></h2></div></div>
             <div class="strategy-grid">
@@ -119,21 +140,33 @@
         </section>
 
         <section class="view calculator-view" id="calculatorView" aria-labelledby="calculatorTitle" hidden>
-          <div class="page-intro"><div class="eyebrow">📊 WR CALCULATOR / TRAINING GOAL</div><h1 id="calculatorTitle">WR <span>CALCULATOR.</span></h1><p>Hitung target kemenangan tambahan untuk mencapai persentase win rate yang diinginkan.</p></div>
+          <div class="page-intro"><div class="eyebrow">📊 ACCOUNT WR CALCULATOR / TRAINING GOAL</div><h1 id="calculatorTitle">WR <span>CALCULATOR.</span></h1><p>Account WR tidak terhubung otomatis. Masukkan total match dan win; kalkulator menghitung WR saat ini dan targetmu.</p></div>
           <div class="calculator-panel surface-panel">
             <div class="calculator-grid">
               <div class="calculator-form">
-                <label><span>Total Match</span><input id="calcMatch" type="number" min="0" step="1" value="100" aria-label="Total match"></label>
-                <label><span>Total Win</span><input id="calcWin" type="number" min="0" step="1" value="60" aria-label="Total win"></label>
-                <label><span>Target WR</span><input id="calcTarget" type="number" min="0" max="100" step="1" value="65" aria-label="Target win rate"></label>
+                <h2 class="calculator-section-title">WR SAAT INI</h2>
+                <label><span>Total Match Saat Ini</span><input id="calcMatch" type="number" min="0" step="1" value="0" aria-label="Total match saat ini"></label>
+                <label><span>Total Win Saat Ini</span><input id="calcWin" type="number" min="0" step="1" value="0" aria-label="Total win saat ini"></label>
+                <div class="current-wr-box"><span>CURRENT WR</span><strong id="currentWR">N/A</strong></div>
+                <h2 class="calculator-section-title target-title">🎯 TARGET WR</h2>
+                <label><span>Target WR (%)</span><input id="calcTarget" type="number" min="0" max="100" step="0.01" value="65" aria-label="Target win rate"></label>
                 <div class="quick-targets"><button type="button" class="quick-target" data-target="50">50%</button><button type="button" class="quick-target" data-target="55">55%</button><button type="button" class="quick-target" data-target="60">60%</button><button type="button" class="quick-target" data-target="65">65%</button><button type="button" class="quick-target" data-target="70">70%</button><button type="button" class="quick-target" data-target="75">75%</button><button type="button" class="quick-target" data-target="80">80%</button></div>
+                <div class="target-progress">
+                  <div><span>TARGET WR</span><strong id="targetWRValue">65.00%</strong></div>
+                  <div><span>GAP</span><strong id="wrGap">N/A</strong></div>
+                  <div class="progress-label"><span>PROGRESS</span><strong id="wrProgressText">N/A</strong></div>
+                  <div class="wr-progress-track" role="progressbar" aria-label="Progress target WR" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="wrProgressBar"></span></div>
+                </div>
               </div>
               <div class="calculator-side">
-                <div class="result-box" id="calcResult">Perlu 15 kemenangan tambahan untuk mencapai 65%.</div>
+                <div class="result-box" id="calcResult" aria-live="polite">Masukkan match dan win saat ini.</div>
+                <p class="win-needed">WIN NEEDED: <strong id="winNeeded">N/A</strong></p>
                 <div class="sim-box">
-                  <h3>SIMULASI</h3>
-                  <div class="sim-actions"><button type="button" class="simulate-btn" data-sim="win" data-value="5">WIN STREAK +5</button><button type="button" class="simulate-btn" data-sim="win" data-value="10">+10</button><button type="button" class="simulate-btn" data-sim="win" data-value="20">+20</button></div>
-                  <div class="sim-actions"><button type="button" class="simulate-btn" data-sim="loss" data-value="5">LOSS STREAK -5</button><button type="button" class="simulate-btn" data-sim="loss" data-value="10">-10</button><button type="button" class="simulate-btn" data-sim="loss" data-value="20">-20</button></div>
+                  <h3>🔥 WIN STREAK SIMULATOR</h3>
+                  <div class="sim-actions"><button type="button" class="simulate-btn" data-sim="win" data-value="1">+1</button><button type="button" class="simulate-btn" data-sim="win" data-value="3">+3</button><button type="button" class="simulate-btn" data-sim="win" data-value="5">+5</button><button type="button" class="simulate-btn" data-sim="win" data-value="10">+10</button><button type="button" class="simulate-btn" data-sim="win" data-value="20">+20</button></div>
+                  <h3>💀 LOSS STREAK</h3>
+                  <div class="sim-actions"><button type="button" class="simulate-btn" data-sim="loss" data-value="1">-1</button><button type="button" class="simulate-btn" data-sim="loss" data-value="3">-3</button><button type="button" class="simulate-btn" data-sim="loss" data-value="5">-5</button><button type="button" class="simulate-btn" data-sim="loss" data-value="10">-10</button></div>
+                  <p id="simulationResult" aria-live="polite">Masukkan data WR untuk simulasi.</p>
                 </div>
                 <button type="button" class="secondary-button calc-reset" id="calculatorReset">RESET CALCULATOR</button>
               </div>
