@@ -1,4 +1,4 @@
-const heroes = [
+const heroDetails = [
   {
     id: "fanny", name: "Fanny", role: "Assassin", lane: "Jungling", tone: "red", difficulty: 5,
     description: "Assassin bermobilitas tinggi yang mengandalkan kabel untuk berpindah antardinding dan menghabisi target dengan cepat.",
@@ -131,11 +131,17 @@ const heroes = [
   }
 ];
 
+let heroes = heroDetails.map((hero) => ({ ...hero, roles: [hero.role], image: "hero-image-fallback.svg" }));
 const roleMeta = window.NoxxRoleMeta;
-window.NOXX127_HERO_ROLE_BY_NAME = Object.freeze(Object.fromEntries(heroes.map((hero) => [
-  hero.name.trim().toLocaleLowerCase("en"),
-  hero.role
-])));
+
+function updateHeroRoleLookup() {
+  window.NOXX127_HERO_ROLE_BY_NAME = Object.freeze(Object.fromEntries(heroes.map((hero) => [
+    hero.name.trim().toLocaleLowerCase("en"),
+    hero.role
+  ])));
+}
+
+updateHeroRoleLookup();
 
 const roleData = [
   { id: "jungle", icon: "🌲", name: "JUNGLE", label: "Jungle", tagline: "Become the tempo controller.", groups: [
@@ -188,9 +194,17 @@ let metaSearchQuery = "";
 let simulationSummary = "Masukkan data WR untuk simulasi.";
 const liveDataRefreshStatus = { meta: null, tournament: null };
 const rankOptions = ["Warrior", "Elite", "Master", "Grandmaster", "Epic", "Legend", "Mythic", "Mythical Honor", "Mythical Glory", "Mythical Immortal"];
+const lanePatternById = Object.freeze({ Jungle: /jungl/, Roam: /roam/, EXP: /\bexp\b/, Gold: /\bgold\b/, Mid: /\bmid\b/ });
 const heroGrid = document.getElementById("heroGrid");
+const heroPoolGrid = document.getElementById("heroPoolGrid");
+const heroPoolEmpty = document.getElementById("heroPoolEmpty");
+const heroCatalogStatus = document.getElementById("heroCatalogStatus");
+const retryHeroCatalog = document.getElementById("retryHeroCatalog");
 const heroSearch = document.getElementById("heroSearch");
+const heroSearchClear = document.getElementById("heroSearchClear");
 const heroSort = document.getElementById("heroSort");
+const heroLane = document.getElementById("heroLane");
+const heroTier = document.getElementById("heroTier");
 const roleFilterButtons = document.getElementById("roleFilterButtons");
 const resultSummary = document.getElementById("resultSummary");
 const emptyState = document.getElementById("emptyState");
@@ -204,6 +218,7 @@ const skillSearch = document.getElementById("skillSearch");
 const skillHeading = document.querySelector(".skill-heading");
 const skillList = document.getElementById("skillList");
 const balanceNote = document.querySelector(".balance-note");
+const dialogHeroImage = document.getElementById("dialogHeroImage");
 
 const roleTrainingData = roleData;
 const roleById = Object.fromEntries(roleData.map((role) => [role.id, role]));
@@ -222,7 +237,7 @@ const trainingState = {
 let toastTimer;
 let storageWarning = false;
 let legacyHeroProgressFound = false;
-const state = { view: "dashboard", activeRole: "jungle", role: "Semua", query: "", wishlist: loadWishlist(), selectedHero: null, progress: loadProgress(), trainingState };
+const state = { view: "dashboard", activeRole: "jungle", role: "Semua", lane: "Semua", tier: "Semua", query: "", wishlist: loadWishlist(), selectedHero: null, progress: loadProgress(), trainingState };
 
 function loadProgress() {
   try {
@@ -332,7 +347,7 @@ function getCategoryProgress(roleId, groupIndex) {
 function loadWishlist() {
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
-    return Array.isArray(saved) ? saved.filter((id) => heroes.some((hero) => hero.id === id)) : [];
+    return Array.isArray(saved) ? saved.filter((id) => typeof id === "string") : [];
   } catch {
     storageWarning = true;
     return [];
@@ -346,6 +361,88 @@ function saveWishlist() {
   } catch {
     showToast("Penyimpanan browser tidak tersedia di perangkat ini.");
     return false;
+  }
+}
+
+function validateHeroCatalog(payload) {
+  const supportedRoles = new Set(roleMeta.entries.map((role) => role.label));
+  const validLanes = new Set(["Jungle", "Roam", "EXP", "Gold", "Mid"]);
+  if (!payload || payload.season !== "Season 42" || !payload.source || !Array.isArray(payload.heroes) || !Number.isSafeInteger(payload.rosterCount) || payload.rosterCount !== payload.heroes.length || payload.heroes.length < 133) {
+    throw new Error("Roster harus memuat setidaknya 133 hero unik Season 42.");
+  }
+  for (const sourceURL of [payload.source.roster, payload.source.seasonValidation]) {
+    if (typeof sourceURL !== "string" || new URL(sourceURL).protocol !== "https:") throw new Error("Sumber roster atau validasi Season 42 tidak valid.");
+  }
+
+  const ids = new Set();
+  const names = new Set();
+  const normalizedHeroes = payload.heroes.map((entry) => {
+    if (!entry || typeof entry.id !== "string" || !entry.id.trim() || typeof entry.name !== "string" || !entry.name.trim() || typeof entry.image !== "string" || !Array.isArray(entry.roles) || !entry.roles.length) {
+      throw new Error("Ada record roster yang kehilangan ID, nama, gambar, atau role.");
+    }
+    const id = entry.id.trim();
+    const name = entry.name.trim();
+    const normalizedId = id.toLocaleLowerCase("en");
+    const normalizedName = name.toLocaleLowerCase("en");
+    let imageURL;
+    try {
+      imageURL = new URL(entry.image);
+    } catch {
+      throw new Error(`URL gambar ${name} tidak valid.`);
+    }
+    if (ids.has(normalizedId) || names.has(normalizedName)) throw new Error(`ID atau nama hero duplikat: ${name}.`);
+    if (imageURL.protocol !== "https:") throw new Error(`Gambar ${name} harus menggunakan HTTPS.`);
+    if (entry.roles.some((role) => !supportedRoles.has(role))) throw new Error(`Role sumber ${name} tidak dikenali.`);
+    const roles = [...new Set(entry.roles)];
+    const lanes = Array.isArray(entry.lanes) ? [...new Set(entry.lanes.filter((lane) => validLanes.has(lane)))] : [];
+    ids.add(normalizedId);
+    names.add(normalizedName);
+    return { ...entry, id, name, roles, role: roles.includes(entry.role) ? entry.role : roles[0], lanes };
+  });
+
+  if (normalizedHeroes.length !== ids.size || normalizedHeroes.length !== names.size) throw new Error("Roster mengandung ID atau nama yang tidak unik.");
+  return normalizedHeroes;
+}
+
+async function loadHeroCatalog() {
+  heroCatalogStatus.textContent = "Memuat roster Season 42...";
+  retryHeroCatalog.hidden = true;
+  try {
+    const response = await fetch("hero-catalog.json", { headers: { Accept: "application/json" }, cache: "no-cache" });
+    if (!response.ok) throw new Error(`Katalog merespons HTTP ${response.status}.`);
+    const payload = await response.json();
+    const catalogHeroes = validateHeroCatalog(payload);
+    const detailByName = new Map(heroDetails.map((hero) => [hero.name.trim().toLocaleLowerCase("en"), hero]));
+    const mergedHeroes = catalogHeroes.map((entry) => {
+      const details = detailByName.get(entry.name.toLocaleLowerCase("en"));
+      const lanes = entry.lanes;
+      return {
+        ...(details || {}),
+        id: details?.id || entry.id,
+        catalogId: entry.id,
+        name: entry.name,
+        image: entry.image,
+        roles: entry.roles,
+        role: entry.role,
+        lanes,
+        lane: lanes.join(" / "),
+        tone: details?.tone || "green",
+        difficulty: details?.difficulty || null,
+        description: details?.description || "",
+        skills: details?.skills || []
+      };
+    });
+    const ids = new Set(mergedHeroes.map((hero) => hero.id));
+    if (ids.size !== mergedHeroes.length) throw new Error("ID hero bertabrakan dengan detail lokal yang tersimpan.");
+    heroes = mergedHeroes;
+    updateHeroRoleLookup();
+    document.getElementById("heroCount").textContent = String(heroes.length);
+    renderHeroes();
+    heroCatalogStatus.innerHTML = `Roster ${heroes.length} hero unik Season 42. Sumber: <a href="${escapeHTML(payload.source.roster)}" target="_blank" rel="noopener noreferrer">MLBBHub roster</a>, dicocokkan dengan <a href="${escapeHTML(payload.source.seasonValidation)}" target="_blank" rel="noopener noreferrer">Tier List Season 42 · Patch ${escapeHTML(payload.patch)}</a>. Data lane mengikuti sumber tersebut; meta ditampilkan terpisah jika tersedia.`;
+  } catch (error) {
+    console.error("Hero Catalog gagal dimuat:", error);
+    heroCatalogStatus.textContent = `Katalog roster tidak tersedia: ${error.message} Yang ditampilkan hanya ${heroes.length} detail lokal; jumlah 133 tidak diklaim.`;
+    retryHeroCatalog.hidden = false;
   }
 }
 
@@ -676,12 +773,24 @@ function renderHeroes() {
   renderRoleFilters();
   const visibleHeroes = getVisibleHeroes();
   heroGrid.innerHTML = visibleHeroes.map(createCard).join("");
+  const selectedHeroes = heroes.filter((hero) => state.wishlist.includes(hero.id));
+  heroPoolGrid.innerHTML = selectedHeroes.map((hero, index) => createCard(hero, index, true)).join("");
+  heroPoolEmpty.hidden = selectedHeroes.length > 0;
   heroGrid.hidden = visibleHeroes.length === 0;
   emptyState.hidden = visibleHeroes.length !== 0;
-  emptyState.querySelector("h3").textContent = state.view === "wishlist" && state.wishlist.length === 0 ? "HERO POOL MASIH KOSONG" : "HERO BELUM DITEMUKAN";
-  emptyState.querySelector("p").textContent = state.view === "wishlist" && state.wishlist.length === 0 ? "Simpan hero pilihanmu untuk menyusun rencana latihan." : "Coba kata kunci atau filter lain.";
-  resultSummary.textContent = state.view === "wishlist" ? `${visibleHeroes.length} dari ${state.wishlist.length} hero di wishlist` : state.role === "Semua" ? `Menampilkan ${visibleHeroes.length} dari ${heroes.length} hero` : `${visibleHeroes.length} hero ${state.role}`;
-  clearFilters.classList.toggle("is-visible", state.role !== "Semua" || state.query !== "" || state.view === "wishlist");
+  emptyState.querySelector("h3").textContent = "HERO BELUM DITEMUKAN";
+  emptyState.querySelector("p").textContent = "Coba kata kunci atau filter lain.";
+  resultSummary.textContent = state.role === "Semua" && state.lane === "Semua" && state.tier === "Semua" && !state.query
+    ? `${heroes.length} HEROES`
+    : `${visibleHeroes.length} / ${heroes.length} HEROES`;
+  document.getElementById("libraryTotalCount").textContent = String(heroes.length);
+  document.getElementById("libraryPoolCount").textContent = String(selectedHeroes.length);
+  document.getElementById("heroPoolCount").textContent = `${selectedHeroes.length} HERO${selectedHeroes.length === 1 ? "" : "ES"}`;
+  document.getElementById("navWishCount").textContent = String(selectedHeroes.length);
+  heroSearchClear.hidden = !heroSearch.value;
+  heroLane.value = state.lane;
+  heroTier.value = state.tier;
+  clearFilters.classList.toggle("is-visible", state.role !== "Semua" || state.lane !== "Semua" || state.tier !== "Semua" || state.query !== "" || heroSort.value !== "featured");
 }
 
 function renderRoleFilters() {
@@ -743,10 +852,13 @@ function escapeHTML(value) {
 
 function getVisibleHeroes() {
   let visible = heroes.filter((hero) => {
-    const matchesView = state.view !== "wishlist" || state.wishlist.includes(hero.id);
-    const matchesRole = state.role === "Semua" || hero.role === state.role;
-    const searchableText = [hero.name, hero.role, hero.lane, hero.description, ...hero.skills.map((skill) => skill[1])].join(" ").toLocaleLowerCase("id");
-    return matchesView && matchesRole && searchableText.includes(state.query.toLocaleLowerCase("id"));
+    const matchesRole = state.role === "Semua" || hero.roles.includes(state.role);
+    const matchesLane = state.lane === "Semua" || lanePatternById[state.lane]?.test((hero.lane || "").toLocaleLowerCase("id"));
+    const tier = getVerifiedHeroTier(hero.name);
+    const matchesTier = state.tier === "Semua" || (state.tier === "UNRATED" ? !tier : tier === state.tier);
+    const skills = Array.isArray(hero.skills) ? hero.skills : [];
+    const searchableText = [hero.name, ...hero.roles, hero.lane || "", hero.description || "", ...skills.map((skill) => skill[1])].join(" ").toLocaleLowerCase("id");
+    return matchesRole && matchesLane && matchesTier && searchableText.includes(state.query.toLocaleLowerCase("id"));
   });
 
   if (heroSort.value === "name") visible = [...visible].sort((a, b) => a.name.localeCompare(b.name, "id"));
@@ -754,28 +866,43 @@ function getVisibleHeroes() {
   return visible;
 }
 
-function createCard(hero, index) {
+function getVerifiedHeroTier(heroName) {
+  return getVerifiedHeroMeta(heroName)?.tier || null;
+}
+
+function getVerifiedHeroMeta(heroName) {
+  const meta = dataService.getCached("meta");
+  if (!meta?.roles) return null;
+  const normalizedName = heroName.trim().toLocaleLowerCase("id");
+  return Object.values(meta.roles).flat().find((entry) => entry.hero.toLocaleLowerCase("id") === normalizedName) || null;
+}
+
+function renderHeroRoles(hero) {
+  return hero.roles.map((role) => roleMeta.renderIdentity(role, "", "hero-role-identity")).join("");
+}
+
+function createCard(hero, index, poolCard = false) {
   const saved = state.wishlist.includes(hero.id);
-  const initials = hero.name === "Yu Zhong" ? "YZ" : hero.name.slice(0, 2).toUpperCase();
-  const filledDots = Array.from({ length: 5 }, (_, dot) => `<i class="${dot < hero.difficulty ? "is-filled" : ""}"></i>`).join("");
-  const previewSkills = hero.skills.slice(0, 3).map((skill) => `<span class="skill-chip">${escapeHTML(skill[1])}</span>`).join("");
+  const meta = getVerifiedHeroMeta(hero.name);
+  const metaSummary = meta
+    ? [`Tier ${meta.tier.replace("-TIER", "")}`, meta.winRate === null ? null : `WR ${meta.winRate.toFixed(2)}%`, meta.pickRate === null ? null : `Pick ${meta.pickRate.toFixed(2)}%`, meta.banRate === null ? null : `Ban ${meta.banRate.toFixed(2)}%`].filter(Boolean).join(" · ")
+    : "Meta belum tersedia";
+  const lane = hero.lane || "Lane belum tersedia";
 
   return `<article class="hero-card" style="animation-delay:${Math.min(index * 35, 280)}ms">
     <div class="card-art" data-tone="${hero.tone}">
-      <span class="card-code">HERO FILE / ${String(heroes.indexOf(hero) + 1).padStart(2, "0")}</span>
       ${roleMeta.renderIdentity(hero.role, hero.name, "card-role")}
-      <span class="hero-monogram" aria-hidden="true">${initials}</span>
-      <span class="card-index">NOXX127 · ${String(index + 1).padStart(2, "0")}</span>
+      <img class="hero-card-image" src="${escapeHTML(hero.image)}" alt="${escapeHTML(hero.name)} hero artwork" loading="lazy" decoding="async" data-hero-image data-fallback="hero-image-fallback.svg">
+      <span class="card-index" aria-hidden="true">NOXX127</span>
     </div>
     <div class="card-body">
-      <div class="card-heading">
-        <div><h3 class="hero-name">${escapeHTML(hero.name)}</h3><p class="hero-lane">${escapeHTML(hero.lane)}</p></div>
-        <button class="wish-toggle ${saved ? "is-saved" : ""}" type="button" data-toggle="${hero.id}" aria-label="${saved ? "Hapus" : "Tambah"} ${escapeHTML(hero.name)} ${saved ? "dari" : "ke"} wishlist" aria-pressed="${saved}">${saved ? "♥" : "♡"}</button>
-      </div>
-      <div class="skill-preview" aria-label="Skill unggulan">${previewSkills}</div>
+      <div class="hero-card-heading"><h3 class="hero-name">${escapeHTML(hero.name)}</h3></div>
+      <div class="hero-card-role">${renderHeroRoles(hero)}</div>
+      <p class="hero-lane">${escapeHTML(lane)}</p>
+      <p class="hero-meta-line ${meta ? "" : "is-unrated"}">${escapeHTML(metaSummary)}</p>
       <div class="card-footer">
-        <span class="difficulty"><span class="difficulty-dots" aria-label="Kesulitan ${hero.difficulty} dari 5">${filledDots}</span> ${hero.difficulty}/5</span>
-        <button class="detail-button" type="button" data-open="${hero.id}">DETAIL SKILL <span aria-hidden="true">↗</span></button>
+        <button class="pool-toggle ${saved ? "is-saved" : ""}" type="button" data-toggle="${escapeHTML(hero.id)}" aria-label="${saved ? "Hapus" : "Tambahkan"} ${escapeHTML(hero.name)} ${saved ? "dari" : "ke"} My Hero Pool" aria-pressed="${saved}">${poolCard ? "✓ Dipilih · Hapus" : saved ? "✓ Dipilih" : "+ Tambahkan"}</button>
+        <button class="detail-button" type="button" data-open="${escapeHTML(hero.id)}" aria-label="Lihat detail ${escapeHTML(hero.name)}">DETAIL <span aria-hidden="true">↗</span></button>
       </div>
     </div>
   </article>`;
@@ -804,17 +931,24 @@ function openHero(heroId) {
   const hero = heroes.find((item) => item.id === heroId);
   if (!hero) return;
   state.selectedHero = hero;
-  skillHeading.hidden = false;
-  skillList.hidden = false;
-  balanceNote.hidden = false;
+  const skills = Array.isArray(hero.skills) ? hero.skills : [];
+  skillHeading.hidden = skills.length === 0;
+  skillList.hidden = skills.length === 0;
+  balanceNote.hidden = skills.length === 0;
   document.getElementById("dialogWish").hidden = false;
   document.getElementById("dialogPortrait").dataset.tone = hero.tone;
-  document.getElementById("dialogInitials").textContent = hero.name === "Yu Zhong" ? "YZ" : hero.name.slice(0, 2).toUpperCase();
-  document.getElementById("dialogRole").innerHTML = `<span class="eyebrow-line"></span> ${roleMeta.renderIdentity(hero.role, hero.name, "dialog-role-identity")} / ${escapeHTML(hero.lane.toUpperCase())}`;
+  const dialogInitials = document.getElementById("dialogInitials");
+  dialogInitials.textContent = hero.name === "Yu Zhong" ? "YZ" : hero.name.slice(0, 2).toUpperCase();
+  dialogInitials.hidden = true;
+  dialogHeroImage.dataset.fallbackApplied = "";
+  dialogHeroImage.classList.remove("is-fallback");
+  dialogHeroImage.alt = `${hero.name} hero artwork`;
+  dialogHeroImage.src = hero.image;
+  document.getElementById("dialogRole").innerHTML = `<span class="eyebrow-line"></span> ${renderHeroRoles(hero)} / ${escapeHTML(hero.lane || "Lane belum tersedia")}`;
   document.getElementById("dialogName").textContent = hero.name;
-  document.getElementById("dialogLane").textContent = `ROLE ${hero.role} · LANE ${hero.lane}`;
-  document.getElementById("dialogDescription").textContent = hero.description;
-  document.getElementById("skillList").innerHTML = hero.skills.map(([key, name, description]) => `<li><span class="skill-key">${escapeHTML(key === "Passive" ? "P" : key)}</span><span class="skill-copy"><b>${escapeHTML(name)}</b><span>${escapeHTML(description)}</span></span></li>`).join("");
+  document.getElementById("dialogLane").textContent = `ROLE ${hero.roles.join(" / ")} · LANE ${hero.lane || "Belum tersedia"}`;
+  document.getElementById("dialogDescription").textContent = hero.description || "Detail skill hero ini belum tersedia dalam data lokal.";
+  skillList.innerHTML = skills.map(([key, name, description]) => `<li><span class="skill-key">${escapeHTML(key === "Passive" ? "P" : key)}</span><span class="skill-copy"><b>${escapeHTML(name)}</b><span>${escapeHTML(description)}</span></span></li>`).join("");
   updateDialogWishButton(hero);
   heroDialog.showModal();
 }
@@ -1025,7 +1159,15 @@ if (calculatorReset) {
 }
 
 heroSearch.addEventListener("input", () => { state.query = heroSearch.value.trim(); renderHeroes(); });
+heroSearchClear.addEventListener("click", () => {
+  state.query = "";
+  heroSearch.value = "";
+  renderHeroes();
+  heroSearch.focus();
+});
 heroSort.addEventListener("change", renderHeroes);
+heroLane.addEventListener("change", () => { state.lane = heroLane.value; renderHeroes(); });
+heroTier.addEventListener("change", () => { state.tier = heroTier.value; renderHeroes(); });
 roleFilterButtons.addEventListener("click", (event) => {
   const button = event.target.closest("[data-role-filter]");
   if (!button) return;
@@ -1033,7 +1175,7 @@ roleFilterButtons.addEventListener("click", (event) => {
   renderHeroes();
 });
 
-heroGrid.addEventListener("click", (event) => {
+function handleHeroCardClick(event) {
   const toggle = event.target.closest("[data-toggle]");
   if (toggle) {
     toggleWishlist(toggle.dataset.toggle);
@@ -1041,27 +1183,47 @@ heroGrid.addEventListener("click", (event) => {
   }
   const detail = event.target.closest("[data-open]");
   if (detail) openHero(detail.dataset.open);
-});
+}
+
+heroGrid.addEventListener("click", handleHeroCardClick);
+heroPoolGrid.addEventListener("click", handleHeroCardClick);
 
 document.getElementById("clearFilters").addEventListener("click", () => {
   state.role = "Semua";
+  state.lane = "Semua";
+  state.tier = "Semua";
   state.query = "";
   state.view = "heroes";
   heroSearch.value = "";
+  heroLane.value = "Semua";
+  heroTier.value = "Semua";
   heroSort.value = "featured";
   renderHeroes();
 });
 
 document.getElementById("emptyReset").addEventListener("click", () => {
   state.role = "Semua";
+  state.lane = "Semua";
+  state.tier = "Semua";
   state.query = "";
   state.view = "heroes";
   heroSearch.value = "";
+  heroLane.value = "Semua";
+  heroTier.value = "Semua";
   renderHeroes();
   heroSearch.focus();
 });
 
 document.getElementById("dialogClose").addEventListener("click", () => heroDialog.close());
+retryHeroCatalog.addEventListener("click", loadHeroCatalog);
+document.addEventListener("error", (event) => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement) || (!image.matches("[data-hero-image]") && image !== dialogHeroImage)) return;
+  if (image.dataset.fallbackApplied || !image.dataset.fallback) return;
+  image.dataset.fallbackApplied = "true";
+  image.classList.add("is-fallback");
+  image.src = image.dataset.fallback;
+}, true);
 document.getElementById("dialogWish").addEventListener("click", () => {
   if (state.selectedHero) toggleWishlist(state.selectedHero.id);
 });
@@ -1119,5 +1281,6 @@ document.addEventListener("keydown", (event) => {
 render();
 if (legacyHeroProgressFound) saveProgress();
 if (storageWarning) showToast("Data progress tersimpan rusak dan dimuat ulang dengan aman.");
+loadHeroCatalog();
 refreshLiveData("meta");
 refreshLiveData("tournament");

@@ -39,7 +39,7 @@
           <button class="side-link" type="button" data-view="meta"><span class="nav-icon">🔥</span> Hero Meta S42</button>
           <button class="side-link" type="button" data-view="tournament"><span class="nav-icon">🏆</span> Tournament Lab</button>
           <button class="side-link" type="button" data-view="calculator"><span class="nav-icon">📊</span> WR Calculator</button>
-          <button class="side-link" type="button" data-view="heroes"><span class="nav-icon">👤</span> My Hero Pool <span class="nav-count" id="heroCount">12</span></button>
+          <button class="side-link" type="button" data-view="heroes"><span class="nav-icon">👤</span> My Hero Pool <span class="nav-count" id="heroCount">13</span></button>
           <button class="side-link" type="button" data-view="review"><span class="nav-icon">🧠</span> Review &amp; Improvement</button>
           <button class="side-link" type="button" data-view="journey"><span class="nav-icon">🏆</span> Rank Journey</button>
         </nav>
@@ -350,14 +350,61 @@
 
         <section class="view heroes-view" id="heroesView" aria-labelledby="rosterHeading" hidden>
           <div class="content-wrap library-wrap">
-            <div class="section-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> SUPPORTING FEATURE / HERO LIBRARY</div><h2 id="rosterHeading">MY HERO <span>POOL.</span></h2><p class="library-description">Simpan hero yang ingin kamu kuasai berdasarkan role.</p></div><div class="library-tools"><label class="search-box" for="heroSearch"><span aria-hidden="true">⌕</span><input id="heroSearch" type="search" placeholder="Cari hero atau skill..." autocomplete="off"><kbd>/</kbd></label><label class="sort-control" for="heroSort"><span>URUTKAN</span><select id="heroSort" aria-label="Urutkan hero"><option value="featured">Pilihan</option><option value="name">Nama A–Z</option><option value="role">Role</option></select></label></div></div>
+            <header class="library-header">
+              <div class="library-title">
+                <div class="eyebrow"><span class="eyebrow-line"></span> HERO LIBRARY / PERSONAL POOL</div>
+                <h1 id="rosterHeading"><span class="library-title-icon" aria-hidden="true">◈</span> MY HERO <span>POOL</span></h1>
+                <p class="library-description">Kelola hero yang ingin kamu kuasai.</p>
+              </div>
+              <div class="search-box library-search">
+                <span aria-hidden="true">⌕</span>
+                <input id="heroSearch" type="search" placeholder="Cari hero atau skill..." aria-label="Cari hero atau skill" autocomplete="off">
+                <button class="search-clear" id="heroSearchClear" type="button" aria-label="Hapus pencarian" hidden>×</button>
+              </div>
+            </header>
+            <div class="hero-catalog-status">
+              <p id="heroCatalogStatus" role="status" aria-live="polite">Memuat roster Season 42...</p>
+              <button class="text-button" id="retryHeroCatalog" type="button" hidden>Coba muat ulang</button>
+            </div>
+
+            <section class="library-summary" aria-label="Ringkasan hero">
+              <article class="library-summary-card"><strong id="libraryTotalCount">13</strong><span>Heroes</span></article>
+              <article class="library-summary-card"><strong id="libraryPoolCount">0</strong><span>Hero saya</span></article>
+              <article class="library-summary-card"><strong>3–5</strong><span>Target / role</span></article>
+            </section>
+
             <div class="mobile-filters" id="mobileFilters">
               <span class="role-filter-label" id="roleFilterLabel">FILTER ROLE</span>
               <div class="role-filter-buttons" id="roleFilterButtons" role="group" aria-label="Filter hero berdasarkan role"></div>
             </div>
-            <div class="filter-summary"><p id="resultSummary" aria-live="polite">Menampilkan semua hero</p><button class="clear-filters" id="clearFilters" type="button">RESET FILTER <span aria-hidden="true">↺</span></button></div>
-            <div class="hero-grid" id="heroGrid" aria-live="polite"></div>
-            <div class="empty-state" id="emptyState" hidden><span class="empty-mark" aria-hidden="true">⌕</span><h3>HERO BELUM DITEMUKAN</h3><p>Coba kata kunci atau filter lain.</p><button class="text-button" id="emptyReset" type="button">Reset pencarian</button></div>
+
+            <div class="library-filter-row">
+              <label class="library-select"><span class="visually-hidden">Filter lane</span><select id="heroLane" aria-label="Filter lane"><option value="Semua">Semua lane</option><option value="Jungle">Jungle</option><option value="Roam">Roam</option><option value="EXP">EXP</option><option value="Gold">Gold</option><option value="Mid">Mid</option></select></label>
+              <label class="library-select"><span class="visually-hidden">Filter tier</span><select id="heroTier" aria-label="Filter tier"><option value="Semua">Semua tier</option><option value="S-TIER">S-Tier</option><option value="A-TIER">A-Tier</option><option value="B-TIER">B-Tier</option><option value="UNRATED">Tier belum tersedia</option></select></label>
+              <label class="library-select library-sort"><span class="visually-hidden">Urutkan hero</span><select id="heroSort" aria-label="Urutkan hero"><option value="featured">Urutan pilihan</option><option value="name">Nama A–Z</option><option value="role">Role</option></select></label>
+              <button class="clear-filters library-reset" id="clearFilters" type="button">RESET FILTER <span aria-hidden="true">↺</span></button>
+            </div>
+
+            <section class="hero-pool-section" aria-labelledby="heroPoolTitle">
+              <div class="library-section-heading">
+                <div><div class="eyebrow"><span class="eyebrow-line"></span> PERSONAL TRAINING</div><h2 id="heroPoolTitle">MY HERO <span>POOL</span></h2><p>Hero yang sedang kamu latih.</p></div>
+                <span class="library-section-count" id="heroPoolCount">0 HERO</span>
+              </div>
+              <div class="hero-pool-grid" id="heroPoolGrid"></div>
+              <div class="hero-pool-empty" id="heroPoolEmpty">
+                <span class="pool-empty-mark" aria-hidden="true">◎</span>
+                <div><strong>Belum ada hero pilihan</strong><p>Tambahkan 3–5 hero dari daftar di bawah untuk mulai membangun hero pool kamu.</p></div>
+              </div>
+            </section>
+
+            <section class="all-heroes-section" aria-labelledby="allHeroesTitle">
+              <div class="library-section-heading all-heroes-heading">
+                <div><div class="eyebrow"><span class="eyebrow-line"></span> BROWSE HEROES</div><h2 id="allHeroesTitle">ALL <span>HEROES</span></h2></div>
+                <span class="library-section-count" id="resultSummary" aria-live="polite">0 HERO</span>
+              </div>
+              <div class="hero-grid" id="heroGrid" aria-live="polite"></div>
+              <div class="empty-state" id="emptyState" hidden><span class="empty-mark" aria-hidden="true">⌕</span><h3>HERO BELUM DITEMUKAN</h3><p>Coba kata kunci atau filter lain.</p><button class="text-button" id="emptyReset" type="button">Reset pencarian</button></div>
+            </section>
           </div>
         </section>
         <footer class="page-footer"><span>NOXX127 <span class="footer-slash">/</span> PERSONAL MLBB TRAINING HUB</span><span>BUILT FOR THE NEXT MATCH <span class="footer-star">✳</span></span></footer>
@@ -368,7 +415,7 @@
 
   <dialog class="hero-dialog" id="heroDialog" aria-labelledby="dialogName">
     <button class="dialog-close" id="dialogClose" type="button" aria-label="Tutup detail">×</button>
-    <div class="dialog-portrait" id="dialogPortrait"><span id="dialogInitials"></span><span class="portrait-mark">MLBB / HERO FILE</span></div>
+    <div class="dialog-portrait" id="dialogPortrait"><img class="dialog-hero-image" id="dialogHeroImage" alt="" data-fallback="hero-image-fallback.svg"><span id="dialogInitials" aria-hidden="true"></span><span class="portrait-mark">MLBB / HERO FILE</span></div>
     <div class="dialog-content">
       <div class="eyebrow" id="dialogRole">HERO PROFILE</div>
       <h2 id="dialogName"></h2>
