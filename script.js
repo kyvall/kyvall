@@ -172,50 +172,10 @@ const roleData = [
   ]}
 ];
 
-const candidateHeroes = [
-  { id: "hirara", name: "Hirara", role: "jungle", priority: "high" },
-  { id: "aulus", name: "Aulus", role: "jungle", priority: "high" },
-  { id: "lukas", name: "Lukas", role: "jungle", priority: "high" },
-  { id: "karina", name: "Karina", role: "jungle", priority: "watch" },
-  { id: "yi-sun-shin", name: "Yi Sun-shin", role: "jungle", priority: "watch" },
-  { id: "rafaela", name: "Rafaela", role: "roam", priority: "high" },
-  { id: "marcel", name: "Marcel", role: "roam", priority: "high" },
-  { id: "belerick", name: "Belerick", role: "roam", priority: "high" },
-  { id: "carmilla", name: "Carmilla", role: "roam", priority: "high" },
-  { id: "minotaur", name: "Minotaur", role: "roam", priority: "watch" },
-  { id: "masha", name: "Masha", role: "exp", priority: "high" },
-  { id: "aulus", name: "Aulus", role: "exp", priority: "high" },
-  { id: "gloo", name: "Gloo", role: "exp", priority: "high" },
-  { id: "cici", name: "Cici", role: "exp", priority: "watch" },
-  { id: "argus", name: "Argus", role: "exp", priority: "watch" },
-  { id: "obsidia", name: "Obsidia", role: "gold", priority: "high" },
-  { id: "popol-kupa", name: "Popol & Kupa", role: "gold", priority: "high" },
-  { id: "hanabi", name: "Hanabi", role: "gold", priority: "high" },
-  { id: "bruno", name: "Bruno", role: "gold", priority: "watch" },
-  { id: "irithel", name: "Irithel", role: "gold", priority: "watch" },
-  { id: "eudora", name: "Eudora", role: "mid", priority: "high" },
-  { id: "valir", name: "Valir", role: "mid", priority: "high" },
-  { id: "gord", name: "Gord", role: "mid", priority: "watch" },
-  { id: "kadita", name: "Kadita", role: "mid", priority: "watch" },
-  { id: "kagura", name: "Kagura", role: "mid", priority: "watch" }
-];
-const heroStudyItems = [
-  "Kenali skill pasif dan semua skill",
-  "Hafalkan combo utama",
-  "Pelajari combo alternatif",
-  "Pelajari power spike",
-  "Pelajari item/build utama",
-  "Pelajari emblem/talent yang cocok",
-  "Pelajari matchup",
-  "Pelajari counter",
-  "Latihan positioning",
-  "Latihan team fight",
-  "Main minimal 10 match",
-  "Tonton dan evaluasi replay"
-];
-
 const storageKey = "noxx127-mlbb-skill-wishlist-v1";
 const progressStorageKey = "noxx127-skill-progress-v2";
+const calculatorStorageKey = "noxx127-wr-calculator-v1";
+const reviewStorageKey = "noxx127-match-review-v1";
 const rankOptions = ["Warrior", "Elite", "Master", "Grandmaster", "Epic", "Legend", "Mythic", "Mythical Honor", "Mythical Glory", "Mythical Immortal"];
 const heroGrid = document.getElementById("heroGrid");
 const heroSearch = document.getElementById("heroSearch");
@@ -230,52 +190,77 @@ const sidebar = document.getElementById("sideNav");
 const menuToggle = document.getElementById("menuToggle");
 const checklistGroups = document.getElementById("checklistGroups");
 const skillSearch = document.getElementById("skillSearch");
-const watchlistGroups = document.getElementById("watchlistGroups");
-const metaSearch = document.getElementById("metaSearch");
-const metaRoleFilter = document.getElementById("metaRoleFilter");
-const watchlistEmpty = document.getElementById("watchlistEmpty");
-const candidateStudy = document.getElementById("candidateStudy");
 const skillHeading = document.querySelector(".skill-heading");
 const skillList = document.getElementById("skillList");
 const balanceNote = document.querySelector(".balance-note");
 
+const roleTrainingData = roleData;
 const roleById = Object.fromEntries(roleData.map((role) => [role.id, role]));
-const candidateHeroIds = [...new Set(candidateHeroes.map((hero) => hero.id))];
-const heroTasks = candidateHeroIds.flatMap((heroId) => heroStudyItems.map((label, index) => ({ id: `hero:${heroId}:${index + 1}`, heroId, label })));
 const roleTasks = roleData.flatMap((role) => role.groups.flatMap((group, groupIndex) => group[1].map((label, taskIndex) => ({ id: `${role.id}-${groupIndex + 1}-${taskIndex + 1}`, role: role.id, label }))));
-const allTasks = [...roleTasks, ...heroTasks];
-const defaultProgress = { completed: [], heroCompleted: [], focus: "jungle", rank: "", notes: {}, streak: 0, lastActiveDate: "", activeDays: [] };
+const defaultProgress = { completed: [], focus: "jungle", rank: "", currentRank: "Epic", notes: {}, streak: 0, lastActiveDate: "", activeDays: [], matchReviews: [], calculator: { totalMatch: 0, totalWin: 0, targetWR: 65, requiredWins: 0 } };
+const trainingState = {
+  roleProgress: {},
+  completedTasks: [],
+  heroPool: [],
+  heroTraining: {},
+  notes: [],
+  matchReviews: [],
+  rankJourney: {},
+  calculator: { totalMatch: 0, totalWin: 0, targetWR: 65, requiredWins: 0 }
+};
 let toastTimer;
 let storageWarning = false;
-const state = { view: "dashboard", activeRole: "jungle", role: "Semua", query: "", metaRole: "all", metaPriority: "all", wishlist: loadWishlist(), selectedHero: null, selectedCandidate: null, progress: loadProgress() };
+let legacyHeroProgressFound = false;
+const state = { view: "dashboard", activeRole: "jungle", role: "Semua", query: "", wishlist: loadWishlist(), selectedHero: null, progress: loadProgress(), trainingState };
 
 function loadProgress() {
   try {
     const stored = JSON.parse(localStorage.getItem(progressStorageKey) || "{}");
     const saved = stored && typeof stored === "object" && !Array.isArray(stored) ? stored : {};
+    legacyHeroProgressFound = Object.hasOwn(saved, "heroCompleted");
+    const savedProgress = Object.fromEntries(Object.entries(saved).filter(([key]) => key !== "heroCompleted"));
+    const calculatorValue = saved.calculator && typeof saved.calculator === "object" ? saved.calculator : defaultProgress.calculator;
+    const safeCalculator = {
+      totalMatch: Number.isFinite(Number(calculatorValue.totalMatch)) ? Math.max(0, Number(calculatorValue.totalMatch)) : 0,
+      totalWin: Number.isFinite(Number(calculatorValue.totalWin)) ? Math.max(0, Number(calculatorValue.totalWin)) : 0,
+      targetWR: Number.isFinite(Number(calculatorValue.targetWR)) ? Math.min(100, Math.max(0, Number(calculatorValue.targetWR))) : 65,
+      requiredWins: Number.isFinite(Number(calculatorValue.requiredWins)) ? Number(calculatorValue.requiredWins) : 0
+    };
     return {
       ...defaultProgress,
-      ...saved,
+      ...savedProgress,
       completed: Array.isArray(saved.completed) ? saved.completed.filter((id) => typeof id === "string" && roleTasks.some((task) => task.id === id)) : [],
-      heroCompleted: Array.isArray(saved.heroCompleted) ? saved.heroCompleted.filter((id) => typeof id === "string" && heroTasks.some((task) => task.id === id)) : [],
       notes: saved.notes && typeof saved.notes === "object" && !Array.isArray(saved.notes)
         ? Object.fromEntries(Object.entries(saved.notes).filter(([, value]) => typeof value === "string"))
         : {},
+      matchReviews: Array.isArray(saved.matchReviews) ? saved.matchReviews.filter((review) => review && typeof review === "object") : [],
+      calculator: safeCalculator,
       activeDays: Array.isArray(saved.activeDays) ? saved.activeDays.filter((date) => typeof date === "string") : [],
       focus: roleById[saved.focus] ? saved.focus : defaultProgress.focus,
       rank: rankOptions.includes(saved.rank) ? saved.rank : "",
+      currentRank: rankOptions.includes(saved.currentRank) ? saved.currentRank : defaultProgress.currentRank,
       streak: Number.isSafeInteger(saved.streak) && saved.streak >= 0 ? saved.streak : 0,
       lastActiveDate: typeof saved.lastActiveDate === "string" ? saved.lastActiveDate : ""
     };
   } catch {
     storageWarning = true;
-    return { ...defaultProgress, completed: [], heroCompleted: [], notes: {}, activeDays: [] };
+    return { ...defaultProgress, completed: [], notes: {}, matchReviews: [], calculator: { ...defaultProgress.calculator }, activeDays: [] };
   }
 }
 
 function saveProgress() {
   try {
+    state.trainingState = state.trainingState || trainingState;
+    state.trainingState.roleProgress = state.progress;
+    state.trainingState.completedTasks = Array.isArray(state.progress.completed) ? [...state.progress.completed] : [];
+    state.trainingState.heroPool = Array.isArray(state.wishlist) ? [...state.wishlist] : [];
+    state.trainingState.matchReviews = Array.isArray(state.progress.matchReviews) ? [...state.progress.matchReviews] : [];
+    state.trainingState.rankJourney = { rank: state.progress.rank || "", focus: state.progress.focus || "jungle" };
+    state.trainingState.calculator = { ...state.progress.calculator };
     localStorage.setItem(progressStorageKey, JSON.stringify(state.progress));
+    localStorage.setItem(storageKey, JSON.stringify(state.wishlist));
+    localStorage.setItem(calculatorStorageKey, JSON.stringify(state.progress.calculator));
+    localStorage.setItem(reviewStorageKey, JSON.stringify(state.progress.matchReviews));
     return true;
   } catch {
     showToast("Penyimpanan browser tidak tersedia di perangkat ini.");
@@ -283,27 +268,48 @@ function saveProgress() {
   }
 }
 
+function loadState() {
+  const loadedProgress = loadProgress();
+  state.progress = loadedProgress;
+  state.trainingState = { ...trainingState, roleProgress: loadedProgress, completedTasks: [...loadedProgress.completed], heroPool: [...state.wishlist], rankJourney: { rank: loadedProgress.rank || "", focus: loadedProgress.focus || "jungle" } };
+  return state.trainingState;
+}
+
+function saveState() {
+  return saveProgress();
+}
+
+function calculateProgress(roleId) {
+  return roleId ? getRoleProgress(roleId) : getOverallProgress();
+}
+
+function calculateOverallProgress() {
+  return getOverallProgress();
+}
+
+function resetCalculator() {
+  const blank = { totalMatch: 0, totalWin: 0, targetWR: 65, requiredWins: 0 };
+  state.trainingState.calculator = blank;
+  return blank;
+}
+
 function getRoleProgress(roleId) {
   const tasks = roleTasks.filter((task) => task.role === roleId);
-  const roleHeroes = [...new Set(candidateHeroes.filter((hero) => hero.role === roleId).map((hero) => hero.id))];
-  const relatedHeroTasks = heroTasks.filter((task) => roleHeroes.includes(task.heroId));
-  const done = tasks.filter((task) => state.progress.completed.includes(task.id)).length
-    + relatedHeroTasks.filter((task) => state.progress.heroCompleted.includes(task.id)).length;
-  const total = tasks.length + relatedHeroTasks.length;
-  return { done, total, percent: total ? Math.min(100, Math.round(done / total * 100)) : 0 };
+  const done = tasks.filter((task) => state.progress.completed.includes(task.id)).length;
+  const total = tasks.length;
+  return { done, total, percent: total ? (done ? Math.max(1, Math.min(100, Math.round(done / total * 100))) : 0) : 0 };
 }
 
 function getOverallProgress() {
   const done = roleTasks.filter((task) => state.progress.completed.includes(task.id)).length
-    + heroTasks.filter((task) => state.progress.heroCompleted.includes(task.id)).length;
-  return { done, total: allTasks.length, percent: allTasks.length ? Math.min(100, Math.round(done / allTasks.length * 100)) : 0 };
+  return { done, total: roleTasks.length, percent: roleTasks.length ? (done ? Math.max(1, Math.min(100, Math.round(done / roleTasks.length * 100))) : 0) : 0 };
 }
 
 function getCategoryProgress(roleId, groupIndex) {
   const role = roleById[roleId];
   const tasks = role.groups[groupIndex][1].map((_, taskIndex) => `${roleId}-${groupIndex + 1}-${taskIndex + 1}`);
   const done = tasks.filter((id) => state.progress.completed.includes(id)).length;
-  return { done, total: tasks.length, percent: Math.round(done / tasks.length * 100) };
+  return { done, total: tasks.length, percent: tasks.length ? (done ? Math.max(1, Math.min(100, Math.round(done / tasks.length * 100))) : 0) : 0 };
 }
 
 function loadWishlist() {
@@ -355,72 +361,6 @@ function renderRole() {
     const visibleRows = rows.map((row) => row.html).join("");
     return `<section class="checklist-group"${rows.some((row) => row.matches) ? "" : " hidden"}><div class="category-heading"><div><h2>${escapeHTML(title)}</h2><span>${category.done} / ${category.total} SELESAI</span></div><strong>${category.percent}%</strong></div><div class="category-track"><span style="width:${category.percent}%"></span></div><div class="task-list">${visibleRows}</div></section>`;
   }).join("");
-}
-
-function getHeroStudyProgress(heroId) {
-  const tasks = heroTasks.filter((task) => task.heroId === heroId);
-  const done = tasks.filter((task) => state.progress.heroCompleted.includes(task.id)).length;
-  const percent = tasks.length ? Math.min(100, Math.round(done / tasks.length * 100)) : 0;
-  const status = percent === 100 ? "Dikuasai" : percent >= 75 ? "Hampir dikuasai" : percent > 0 ? "Sedang dipelajari" : "Belum mulai";
-  return { done, total: tasks.length, percent, status };
-}
-
-function renderWatchlist() {
-  const query = metaSearch.value.trim().toLocaleLowerCase("id");
-  const visible = candidateHeroes.filter((hero) => {
-    const role = roleById[hero.role];
-    const matchesRole = state.metaRole === "all" || hero.role === state.metaRole;
-    const matchesPriority = state.metaPriority === "all" || hero.priority === state.metaPriority;
-    const matchesQuery = `${hero.name} ${role.label} ${role.name}`.toLocaleLowerCase("id").includes(query);
-    return matchesRole && matchesPriority && matchesQuery;
-  });
-  watchlistEmpty.hidden = visible.length > 0;
-  watchlistGroups.innerHTML = roleData.map((role) => {
-    const entries = visible.filter((hero) => hero.role === role.id);
-    if (entries.length === 0) return "";
-    const cards = entries.map((hero) => {
-      const progress = getHeroStudyProgress(hero.id);
-      const priorityLabel = hero.priority === "high" ? "🔥 PRIORITAS TINGGI" : "🟢 DIPANTAU";
-      return `<article class="candidate-card"><div class="candidate-card-top"><span class="candidate-role">${role.icon} ${escapeHTML(role.label)}</span><span class="candidate-priority ${hero.priority === "high" ? "is-high" : ""}">${priorityLabel}</span></div><h3>${escapeHTML(hero.name)}</h3><span class="candidate-label">CALON META S43 · PRIORITAS BELAJAR</span><div class="candidate-progress-label"><span>${progress.status}</span><strong>${progress.done} / ${progress.total} · ${progress.percent}%</strong></div><div class="candidate-progress-track"><span style="width:${progress.percent}%"></span></div><button class="candidate-open" type="button" data-study="${hero.id}" data-candidate-role="${hero.role}">BUKA CHECKLIST BELAJAR <span aria-hidden="true">↗</span></button></article>`;
-    }).join("");
-    const roleProgress = getRoleProgress(role.id);
-    return `<section class="watchlist-role"><div class="watchlist-role-heading"><div><span class="eyebrow">${role.icon} ${escapeHTML(role.label.toUpperCase())}</span><h2>${escapeHTML(role.name)}</h2></div><span>${entries.length} CALON · ${roleProgress.percent}% TOTAL ROLE</span></div><div class="candidate-grid">${cards}</div></section>`;
-  }).join("");
-}
-
-function renderCandidateStudy(heroId) {
-  const candidate = candidateHeroes.find((hero) => hero.id === heroId);
-  if (!candidate) return;
-  const progress = getHeroStudyProgress(heroId);
-  document.getElementById("candidateStudyTitle").textContent = `${candidate.name} · ${roleById[candidate.role].label}`;
-  document.getElementById("candidateStudyProgress").textContent = `${progress.percent}%`;
-  document.getElementById("candidateStudyBar").style.width = `${progress.percent}%`;
-  document.getElementById("candidateStudyStatus").textContent = `${progress.status} · ${progress.done} dari ${progress.total} checklist`;
-  document.getElementById("candidateStudyList").innerHTML = heroStudyItems.map((label, index) => {
-    const taskId = `hero:${heroId}:${index + 1}`;
-    const checked = state.progress.heroCompleted.includes(taskId);
-    return `<label class="candidate-task ${checked ? "is-complete" : ""}"><input type="checkbox" data-hero-task="${taskId}" ${checked ? "checked" : ""}><span class="custom-check" aria-hidden="true">✓</span><span>${escapeHTML(label)}</span></label>`;
-  }).join("");
-}
-
-function openCandidateHero(heroId, roleId) {
-  const candidate = candidateHeroes.find((hero) => hero.id === heroId && hero.role === roleId);
-  if (!candidate) return;
-  state.selectedCandidate = heroId;
-  state.selectedHero = null;
-  candidateStudy.hidden = false;
-  skillHeading.hidden = true;
-  skillList.hidden = true;
-  balanceNote.hidden = true;
-  document.getElementById("dialogPortrait").dataset.tone = "green";
-  document.getElementById("dialogInitials").textContent = candidate.name.slice(0, 2).toUpperCase();
-  document.getElementById("dialogRole").innerHTML = `<span class="eyebrow-line"></span> ${escapeHTML(roleById[candidate.role].label.toUpperCase())} / CALON META S43`;
-  document.getElementById("dialogName").textContent = candidate.name;
-  document.getElementById("dialogLane").textContent = `${roleById[candidate.role].label} · ${candidate.priority === "high" ? "Prioritas Tinggi" : "Dipantau"}`;
-  document.getElementById("dialogDescription").textContent = "Watchlist prediksi berdasarkan data S42 dan tren patch terkini. Status ini bukan klaim Meta S43 resmi.";
-  document.getElementById("dialogWish").hidden = true;
-  renderCandidateStudy(heroId);
-  heroDialog.showModal();
 }
 
 function getStreakDays() {
@@ -480,28 +420,112 @@ function renderNotes() {
   document.getElementById("notesGrid").innerHTML = fields.map(([key, label, placeholder]) => `<label class="note-field"><span>${label}</span><textarea data-note="${key}" rows="3" placeholder="${placeholder}">${escapeHTML(state.progress.notes[key] || "")}</textarea></label>`).join("");
 }
 
+function calculateRequiredWins(matchCount, winCount, targetPercent) {
+  const matches = Number(matchCount);
+  const wins = Number(winCount);
+  const target = Number(targetPercent);
+  if (!Number.isSafeInteger(matches) || !Number.isSafeInteger(wins) || !Number.isFinite(target) || matches < 0 || wins < 0 || target < 0 || target > 100 || wins > matches) {
+    return { valid: false, message: "Input harus aman dan masuk akal.", required: 0, current: 0 };
+  }
+  const currentWr = matches > 0 ? wins / matches * 100 : 0;
+  if (matches === 0) {
+    return { valid: true, message: `0 match tercatat. Target ${target}% memerlukan ${Math.max(0, Math.ceil((target / 100) * 1 - wins))} kemenangan tambahan di match pertama.`, required: Math.max(0, Math.ceil(target / 100 - wins)), current: currentWr };
+  }
+  if (target >= 100) {
+    if (wins === matches) {
+      return { valid: true, message: "Win rate saat ini sudah memenuhi target 100%.", required: 0, current: currentWr };
+    }
+    return { valid: true, message: "Target 100% tidak dapat dicapai setelah tercatat kekalahan.", required: null, current: currentWr };
+  }
+  const required = Math.ceil((target * matches - 100 * wins) / (100 - target));
+  if (required <= 0) {
+    return { valid: true, message: `Win rate saat ini sudah memenuhi target ${target}%.`, required: 0, current: currentWr };
+  }
+  return { valid: true, message: `Perlu ${required} kemenangan tambahan untuk mencapai ${target}%.`, required, current: currentWr };
+}
+
+function renderCalculator() {
+  const calculator = { ...defaultProgress.calculator, ...(state.progress.calculator || {}) };
+  const matchInput = document.getElementById("calcMatch");
+  const winInput = document.getElementById("calcWin");
+  const targetInput = document.getElementById("calcTarget");
+  if (!matchInput || !winInput || !targetInput) return;
+  matchInput.value = calculator.totalMatch ?? 0;
+  winInput.value = calculator.totalWin ?? 0;
+  targetInput.value = calculator.targetWR ?? 65;
+  const result = calculateRequiredWins(calculator.totalMatch, calculator.totalWin, calculator.targetWR);
+  state.progress.calculator = { ...calculator, requiredWins: result.required };
+  const output = document.getElementById("calcResult");
+  if (!output) return;
+  output.textContent = result.valid ? result.message : "Input tidak valid. Periksa match, win, dan target WR.";
+}
+
+function renderReview() {
+  const list = document.getElementById("reviewList");
+  if (!list) return;
+  const reviews = Array.isArray(state.progress.matchReviews) ? state.progress.matchReviews : [];
+  list.innerHTML = reviews.length === 0 ? '<div class="empty-review">Belum ada review match tersimpan. Catat hasilmu untuk melihat pola yang perlu ditingkatkan.</div>' : reviews.map((review, index) => `
+    <article class="review-card">
+      <div class="review-head"><strong>${escapeHTML(review.hero || "Hero")}</strong><span>${escapeHTML(review.date || "Tanggal belum diisi")}</span></div>
+      <p><b>Role:</b> ${escapeHTML(review.role || "-")}</p>
+      <p><b>Result:</b> ${escapeHTML(review.result || "-")}</p>
+      <p><b>KDA:</b> ${escapeHTML(review.kda || "-")}</p>
+      <p><b>Kesalahan:</b> ${escapeHTML(review.mistakes || "-")}</p>
+      <p><b>Hal baik:</b> ${escapeHTML(review.good || "-")}</p>
+      <p><b>Perbaikan:</b> ${escapeHTML(review.improvement || "-")}</p>
+      <p><b>Fokus next match:</b> ${escapeHTML(review.focus || "-")}</p>
+      <button type="button" class="text-link remove-review" data-remove-review="${index}">HAPUS</button>
+    </article>
+  `).join("");
+}
+
+function renderJourney() {
+  const overall = getOverallProgress();
+  const currentRank = state.progress.currentRank || defaultProgress.currentRank;
+  const targetRank = state.progress.rank || "Belum dipilih";
+  const bar = document.getElementById("journeyBar");
+  const currentSelect = document.getElementById("journeyCurrentSelect");
+  const targetSelect = document.getElementById("journeyTargetSelect");
+  const current = document.getElementById("journeyCurrent");
+  const target = document.getElementById("journeyTarget");
+  if (currentSelect) currentSelect.value = currentRank;
+  if (targetSelect) targetSelect.value = state.progress.rank || "";
+  if (current) current.textContent = currentRank;
+  if (target) target.textContent = targetRank;
+  if (bar) bar.style.width = `${Math.min(100, overall.percent)}%`;
+}
+
 function render() {
-  const visibleView = state.view === "wishlist" ? "heroes" : state.view;
+  const viewMap = {
+    meta: "watchlist",
+    wishlist: "heroes"
+  };
+  const visibleView = viewMap[state.view] || state.view;
   document.querySelectorAll(".view").forEach((view) => { view.hidden = view.id !== `${visibleView}View`; });
   document.querySelectorAll("[data-view]").forEach((item) => {
     const active = (item.dataset.view === state.view || (state.view === "wishlist" && item.dataset.view === "wishlist")) && (state.view !== "role" || item.dataset.role === state.activeRole);
     item.classList.toggle("is-active", active);
     if (item.matches(".side-link, .mobile-nav-link")) item.setAttribute("aria-current", active ? "page" : "false");
   });
-  roleData.forEach((role) => { document.querySelector(`[data-nav-progress="${role.id}"]`).textContent = `${getRoleProgress(role.id).percent}%`; });
+  roleData.forEach((role) => {
+    const progressLabel = document.querySelector(`[data-nav-progress="${role.id}"]`);
+    if (progressLabel) progressLabel.textContent = `${getRoleProgress(role.id).percent}%`;
+  });
   document.getElementById("heroCount").textContent = String(heroes.length);
   document.getElementById("navWishCount").textContent = String(state.wishlist.length);
   renderDashboard();
   renderRole();
   renderProgress();
   renderNotes();
+  renderCalculator();
+  renderReview();
+  renderJourney();
   document.getElementById("rankSelect").value = state.progress.rank;
   document.getElementById("rankDisplay").textContent = state.progress.rank || "Belum dipilih";
   const overall = getOverallProgress();
   document.getElementById("rankProgressPercent").textContent = `${overall.percent}%`;
   document.getElementById("rankProgressCount").textContent = `${overall.done} / ${overall.total} checklist`;
   document.getElementById("rankProgressBar").style.width = `${overall.percent}%`;
-  renderWatchlist();
   if (state.view === "heroes" || state.view === "wishlist") renderHeroes();
 }
 
@@ -544,15 +568,6 @@ function completeTask(taskId, isChecked) {
   saveProgress();
   render();
   if (isChecked) showToast("Skill ditandai selesai. Progress diperbarui.");
-}
-
-function completeHeroTask(taskId, isChecked) {
-  if (!heroTasks.some((task) => task.id === taskId)) return;
-  if (isChecked && !state.progress.heroCompleted.includes(taskId)) state.progress.heroCompleted.push(taskId);
-  if (!isChecked) state.progress.heroCompleted = state.progress.heroCompleted.filter((id) => id !== taskId);
-  saveProgress();
-  render();
-  if (state.selectedCandidate) renderCandidateStudy(state.selectedCandidate);
 }
 
 function escapeHTML(value) {
@@ -623,9 +638,7 @@ function updateDialogWishButton(hero) {
 function openHero(heroId) {
   const hero = heroes.find((item) => item.id === heroId);
   if (!hero) return;
-  state.selectedCandidate = null;
   state.selectedHero = hero;
-  candidateStudy.hidden = true;
   skillHeading.hidden = false;
   skillList.hidden = false;
   balanceNote.hidden = false;
@@ -661,34 +674,7 @@ checklistGroups.addEventListener("change", (event) => {
   if (checkbox) completeTask(checkbox.dataset.task, checkbox.checked);
 });
 
-document.getElementById("candidateStudyList").addEventListener("change", (event) => {
-  const checkbox = event.target.closest("[data-hero-task]");
-  if (checkbox) completeHeroTask(checkbox.dataset.heroTask, checkbox.checked);
-});
-
-watchlistGroups.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-study]");
-  if (button) openCandidateHero(button.dataset.study, button.dataset.candidateRole);
-});
-
 skillSearch.addEventListener("input", renderRole);
-metaSearch.addEventListener("input", renderWatchlist);
-metaRoleFilter.addEventListener("change", () => {
-  state.metaRole = metaRoleFilter.value;
-  renderWatchlist();
-});
-
-document.querySelector(".priority-filters").addEventListener("click", (event) => {
-  const button = event.target.closest("[data-meta-priority]");
-  if (!button) return;
-  state.metaPriority = button.dataset.metaPriority;
-  document.querySelectorAll("[data-meta-priority]").forEach((filter) => {
-    const active = filter === button;
-    filter.classList.toggle("is-active", active);
-    filter.setAttribute("aria-pressed", String(active));
-  });
-  renderWatchlist();
-});
 
 document.getElementById("focusSelect").addEventListener("change", () => {
   state.progress.focus = document.getElementById("focusSelect").value;
@@ -709,6 +695,18 @@ document.getElementById("rankSelect").addEventListener("change", () => {
   showToast(state.progress.rank ? `Target rank ${state.progress.rank} tersimpan.` : "Target rank dihapus.");
 });
 
+document.getElementById("journeyCurrentSelect").addEventListener("change", (event) => {
+  state.progress.currentRank = event.currentTarget.value;
+  saveProgress();
+  renderJourney();
+});
+
+document.getElementById("journeyTargetSelect").addEventListener("change", (event) => {
+  state.progress.rank = event.currentTarget.value;
+  saveProgress();
+  render();
+});
+
 document.getElementById("notesGrid").addEventListener("input", (event) => {
   const field = event.target.closest("[data-note]");
   if (!field) return;
@@ -719,6 +717,122 @@ document.getElementById("notesGrid").addEventListener("input", (event) => {
   window.clearTimeout(indicator.timer);
   indicator.timer = window.setTimeout(() => { indicator.textContent = "TERSIMPAN"; }, 350);
 });
+
+const reviewForm = document.getElementById("reviewForm");
+if (reviewForm) {
+  reviewForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const formData = new FormData(reviewForm);
+    const entry = Object.fromEntries(formData.entries());
+    const list = Array.isArray(state.progress.matchReviews) ? state.progress.matchReviews : [];
+    list.unshift({
+      date: entry.date || new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }),
+      hero: entry.hero || entry.mainHero || "Hero utama",
+      role: entry.role || entry.focusRole || "-",
+      result: entry.result || "Match review",
+      kda: entry.kda || "-",
+      mistakes: entry.mistakes || "-",
+      good: entry.good || "-",
+      improvement: entry.improvement || "-",
+      focus: entry.focus || "-",
+      learnHero: entry.learnHero || "-",
+      nextRank: entry.nextRank || "-",
+      target: entry.nextRank || entry.target || "-"
+    });
+    state.progress.matchReviews = list.slice(0, 10);
+    saveProgress();
+    renderReview();
+    reviewForm.reset();
+    showToast("Review match tersimpan.");
+  });
+}
+
+const reviewList = document.getElementById("reviewList");
+if (reviewList) {
+  reviewList.addEventListener("click", (event) => {
+    const removeButton = event.target.closest("[data-remove-review]");
+    if (!removeButton) return;
+    const index = Number(removeButton.dataset.removeReview);
+    const reviews = Array.isArray(state.progress.matchReviews) ? state.progress.matchReviews : [];
+    reviews.splice(index, 1);
+    state.progress.matchReviews = reviews;
+    saveProgress();
+    renderReview();
+  });
+}
+
+const calcMatch = document.getElementById("calcMatch");
+const calcWin = document.getElementById("calcWin");
+const calcTarget = document.getElementById("calcTarget");
+const calcResult = document.getElementById("calcResult");
+
+function syncCalculatorState() {
+  const stateData = {
+    totalMatch: calcMatch?.value.trim() ? Number(calcMatch.value) : Number.NaN,
+    totalWin: calcWin?.value.trim() ? Number(calcWin.value) : Number.NaN,
+    targetWR: calcTarget?.value.trim() ? Number(calcTarget.value) : Number.NaN
+  };
+  const result = calculateRequiredWins(stateData.totalMatch, stateData.totalWin, stateData.targetWR);
+  if (calcResult) calcResult.textContent = result.message;
+  if (!result.valid) return;
+  state.progress.calculator = { ...stateData, requiredWins: result.required };
+  saveProgress();
+}
+
+[calcMatch, calcWin, calcTarget].forEach((element) => {
+  if (!element) return;
+  element.addEventListener("input", syncCalculatorState);
+});
+
+document.querySelectorAll(".quick-target").forEach((button) => {
+  button.addEventListener("click", () => {
+    if (!calcTarget) return;
+    calcTarget.value = button.dataset.target;
+    syncCalculatorState();
+  });
+});
+
+document.querySelectorAll(".simulate-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    const simMode = button.dataset.sim;
+    const value = Number(button.dataset.value || 0);
+    const matches = Number(calcMatch?.value);
+    const wins = Number(calcWin?.value);
+    const target = Number(calcTarget?.value);
+    if (!calculateRequiredWins(matches, wins, target).valid || !Number.isSafeInteger(value) || value < 0) {
+      syncCalculatorState();
+      return;
+    }
+    const nextMatches = matches + value;
+    if (!Number.isSafeInteger(nextMatches)) {
+      if (calcResult) calcResult.textContent = "Input tidak valid. Jumlah match terlalu besar.";
+      return;
+    }
+    if (calcMatch) calcMatch.value = String(nextMatches);
+    if (simMode === "win") {
+      const nextWins = wins + value;
+      if (!Number.isSafeInteger(nextWins)) {
+        if (calcResult) calcResult.textContent = "Input tidak valid. Jumlah win terlalu besar.";
+        return;
+      }
+      if (calcWin) calcWin.value = String(nextWins);
+    }
+    syncCalculatorState();
+  });
+});
+
+const calculatorReset = document.getElementById("calculatorReset");
+if (calculatorReset) {
+  calculatorReset.addEventListener("click", () => {
+    const blank = { totalMatch: 0, totalWin: 0, targetWR: 65, requiredWins: 0 };
+    state.progress.calculator = blank;
+    if (calcMatch) calcMatch.value = "0";
+    if (calcWin) calcWin.value = "0";
+    if (calcTarget) calcTarget.value = "65";
+    saveProgress();
+    renderCalculator();
+  });
+}
 
 heroSearch.addEventListener("input", () => { state.query = heroSearch.value.trim(); renderHeroes(); });
 heroSort.addEventListener("change", renderHeroes);
@@ -781,7 +895,7 @@ document.addEventListener("keydown", (event) => {
 
 document.getElementById("resetProgress").addEventListener("click", () => {
   if (!window.confirm("Reset seluruh checklist, streak, target rank, dan catatan latihan? Tindakan ini tidak dapat dibatalkan.")) return;
-  state.progress = { ...defaultProgress, completed: [], heroCompleted: [], notes: {}, activeDays: [] };
+  state.progress = { ...defaultProgress, completed: [], notes: {}, activeDays: [] };
   saveProgress();
   render();
   showToast("Semua progress wishlist berhasil direset.");
@@ -809,4 +923,5 @@ document.addEventListener("keydown", (event) => {
 });
 
 render();
+if (legacyHeroProgressFound) saveProgress();
 if (storageWarning) showToast("Data progress tersimpan rusak dan dimuat ulang dengan aman.");
