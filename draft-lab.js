@@ -27,6 +27,10 @@
     return window.NoxxDataService?.getCached("meta") || null;
   }
 
+  function renderRoleIdentity(label, heroName, className) {
+    return window.NoxxRoleMeta.renderIdentity(label, heroName, className);
+  }
+
   function getHeroes() {
     const meta = getMeta();
     if (!meta) return [];
@@ -81,7 +85,7 @@
           <select id="${id}" data-draft-side="${side}" data-draft-kind="${kind}" data-draft-index="${index}" aria-label="${side === "blue" ? "Blue" : "Red"} ${slotName.toLowerCase()}" ${heroes.length ? "" : "disabled"}>
             ${renderHeroOptions(value, excluded)}
           </select>
-          ${chosenHero ? `<span class="draft-slot-meta">${escapeHTML(chosenHero.role || roleLabels[chosenHero.roleId])} · ${escapeHTML(chosenHero.tier)}</span>` : '<span class="draft-slot-meta">Belum dipilih</span>'}
+          ${chosenHero ? `<span class="draft-slot-meta">${renderRoleIdentity(chosenHero.role || roleLabels[chosenHero.roleId], chosenHero.hero)} · ${escapeHTML(chosenHero.tier)}</span>` : '<span class="draft-slot-meta">Belum dipilih</span>'}
         </label>`;
       }).join("");
     });
@@ -121,7 +125,7 @@
       const entries = heroes.filter((hero) => priorityGroup(hero) === group);
       return `<section class="priority-category"><h3>${group}<span>${entries.length}</span></h3>${entries.length ? entries.map((hero) => `
         <article class="priority-hero">
-          <div class="priority-hero-heading"><strong>${escapeHTML(hero.hero)}</strong><span>${escapeHTML(hero.role || roleLabels[hero.roleId])} · ${escapeHTML(hero.tier)}</span></div>
+          <div class="priority-hero-heading"><strong>${escapeHTML(hero.hero)}</strong><span>${renderRoleIdentity(hero.role || roleLabels[hero.roleId], hero.hero)} · ${escapeHTML(hero.tier)}</span></div>
           <span class="priority-badge">${group === "SANGAT PRIORITAS" ? "BAN PRIORITY" : group}</span>
           <span class="priority-meter-label">PRIORITY INDEX · INTERNAL</span>
           <div class="priority-meter" role="img" aria-label="${escapeHTML(hero.hero)}: indikator derived, bukan statistik resmi"><span style="width:${Math.max(12, Math.min(100, hero.banRate ?? tierValue(hero) * 12))}%"></span></div>
@@ -155,7 +159,7 @@
     const hero = getCurrentAssistantHero();
     document.getElementById("assistantDetails").innerHTML = hero ? `
       <div class="assistant-hero-name"><span>YOUR PICK</span><strong>${escapeHTML(hero.hero)}</strong></div>
-      <div class="assistant-facts"><p><b>📌 ROLE</b>${escapeHTML(hero.role || roleLabels[hero.roleId])}</p>
+      <div class="assistant-facts"><p><b>ROLE</b>${renderRoleIdentity(hero.role || roleLabels[hero.roleId], hero.hero)}</p>
       <p><b>✓ KELEBIHAN</b>${escapeHTML(hero.tier)} · Win Rate ${percent(hero.winRate)}</p>
       <p><b>⚠ RISIKO</b>Matchup, kit, dan risiko hero belum tersedia dalam data terverifikasi.</p>
       <p><b>🎯 COCOK DENGAN</b>Data sinergi belum tersedia.</p>
@@ -182,7 +186,7 @@
   }
 
   function roleListMarkup(roles) {
-    return requiredRoles.map((role) => `<span class="${roles.has(role) ? "check-ok" : "check-missing"}">${roles.has(role) ? "✓" : "○"} ${roleLabels[role]}</span>`).join("");
+    return requiredRoles.map((role) => `<span class="${roles.has(role) ? "check-ok" : "check-missing"}">${roles.has(role) ? "✓" : "○"} ${renderRoleIdentity(roleLabels[role])}</span>`).join("");
   }
 
   function teamCompositionMarkup(side) {
@@ -273,7 +277,7 @@
           : `Pilihan role ${hero.role || roleLabels[hero.roleId]} dengan tier ${hero.tier} pada snapshot ranked; evaluasi kebutuhan tim secara manual.`;
       }
       const tierInfo = state.mode === "tournament" ? "Priority kompetitif belum tersedia" : `Verified tier: ${hero.tier}`;
-      return `<article class="recommended-pick"><strong><span>#${index + 1}</span> ${escapeHTML(hero.hero)}</strong><p><b>Reason:</b> ${escapeHTML(reason)}</p><small>${escapeHTML(hero.role || roleLabels[hero.roleId])} · ${escapeHTML(tierInfo)}</small></article>`;
+      return `<article class="recommended-pick"><strong><span>#${index + 1}</span> ${escapeHTML(hero.hero)}</strong><p><b>Reason:</b> ${escapeHTML(reason)}</p><small>${renderRoleIdentity(hero.role || roleLabels[hero.roleId], hero.hero)} · ${escapeHTML(tierInfo)}</small></article>`;
     });
     const recommendationNote = state.mode === "tournament"
       ? "Pilihan hero/role berasal dari snapshot ranked yang tersedia, tetapi tier ranked tidak dipakai sebagai prioritas tournament. Data counter, popularity, dan prioritas kompetitif per-hero belum tersedia."

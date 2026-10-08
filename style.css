@@ -901,3 +901,24 @@ body { min-width: 320px; background: var(--canvas); }
   .priority-stats b { font-size: 8px; }
   .draft-view .page-intro { padding-inline: 15px; }
 }
+
+.role-identity { min-width: 0; display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; }
+.role-icon { flex: 0 0 15px; width: 15px; height: 15px; color: var(--acid); }
+.card-role { gap: 4px; }
+.dialog-role-identity { color: var(--acid); }
+.meta-role-heading { color: inherit; }
+.meta-hero-role .role-identity { color: #c6d5c6; }
+.assistant-facts .role-identity { color: #d1dacb; }
+.composition-role-list .role-identity { gap: 4px; }
+.heroes-view .mobile-filters { min-width: 0; display: grid; gap: 8px; margin-top: 14px; }
+.role-filter-label { color: #819083; font: 700 9px/1 var(--body); }
+.role-filter-buttons { min-width: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.role-filter-button { min-width: 0; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 5px 7px; border: 1px solid #3b493b; color: #b7c5b5; background: #111711; cursor: pointer; font: 600 10px/1.1 var(--body); }
+.role-filter-button:hover, .role-filter-button.is-selected { border-color: var(--acid); color: var(--acid); background: #1b2418; }
+.role-filter-button .role-identity { gap: 5px; }
+.role-filter-button:focus-visible { outline: 2px solid var(--acid); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .role-filter-buttons { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+  .role-filter-button { min-height: 39px; gap: 4px; padding-inline: 3px; font-size: 9px; }
+}

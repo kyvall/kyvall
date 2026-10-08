@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="verified-snapshots.js" defer></script>
   <script src="data-service.js" defer></script>
+  <script src="role-meta.js" defer></script>
   <script src="draft-lab.js" defer></script>
   <script src="script.js" defer></script>
 </head>
@@ -350,7 +351,10 @@
         <section class="view heroes-view" id="heroesView" aria-labelledby="rosterHeading" hidden>
           <div class="content-wrap library-wrap">
             <div class="section-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> SUPPORTING FEATURE / HERO LIBRARY</div><h2 id="rosterHeading">MY HERO <span>POOL.</span></h2><p class="library-description">Simpan hero yang ingin kamu kuasai berdasarkan role.</p></div><div class="library-tools"><label class="search-box" for="heroSearch"><span aria-hidden="true">⌕</span><input id="heroSearch" type="search" placeholder="Cari hero atau skill..." autocomplete="off"><kbd>/</kbd></label><label class="sort-control" for="heroSort"><span>URUTKAN</span><select id="heroSort" aria-label="Urutkan hero"><option value="featured">Pilihan</option><option value="name">Nama A–Z</option><option value="role">Role</option></select></label></div></div>
-            <div class="mobile-filters" id="mobileFilters"><label for="mobileRole">FILTER ROLE</label><select id="mobileRole" aria-label="Filter role hero"><option value="Semua">Semua role</option><option>Assassin</option><option>Fighter</option><option>Mage</option><option>Marksman</option><option>Tank</option><option>Support</option></select></div>
+            <div class="mobile-filters" id="mobileFilters">
+              <span class="role-filter-label" id="roleFilterLabel">FILTER ROLE</span>
+              <div class="role-filter-buttons" id="roleFilterButtons" role="group" aria-label="Filter hero berdasarkan role"></div>
+            </div>
             <div class="filter-summary"><p id="resultSummary" aria-live="polite">Menampilkan semua hero</p><button class="clear-filters" id="clearFilters" type="button">RESET FILTER <span aria-hidden="true">↺</span></button></div>
             <div class="hero-grid" id="heroGrid" aria-live="polite"></div>
             <div class="empty-state" id="emptyState" hidden><span class="empty-mark" aria-hidden="true">⌕</span><h3>HERO BELUM DITEMUKAN</h3><p>Coba kata kunci atau filter lain.</p><button class="text-button" id="emptyReset" type="button">Reset pencarian</button></div>

@@ -131,6 +131,12 @@ const heroes = [
   }
 ];
 
+const roleMeta = window.NoxxRoleMeta;
+window.NOXX127_HERO_ROLE_BY_NAME = Object.freeze(Object.fromEntries(heroes.map((hero) => [
+  hero.name.trim().toLocaleLowerCase("en"),
+  hero.role
+])));
+
 const roleData = [
   { id: "jungle", icon: "🌲", name: "JUNGLE", label: "Jungle", tagline: "Become the tempo controller.", groups: [
     ["🌲 HERO POOL", ["Kuasai minimal 3–5 hero Jungler", "Pelajari combo dan mekanik setiap hero", "Pelajari counter dan matchup Jungler", "Latihan Retribution dan timing skill"]],
@@ -185,7 +191,7 @@ const rankOptions = ["Warrior", "Elite", "Master", "Grandmaster", "Epic", "Legen
 const heroGrid = document.getElementById("heroGrid");
 const heroSearch = document.getElementById("heroSearch");
 const heroSort = document.getElementById("heroSort");
-const mobileRole = document.getElementById("mobileRole");
+const roleFilterButtons = document.getElementById("roleFilterButtons");
 const resultSummary = document.getElementById("resultSummary");
 const emptyState = document.getElementById("emptyState");
 const clearFilters = document.getElementById("clearFilters");
@@ -492,7 +498,7 @@ function formatDataTimestamp(value) {
 
 function renderMeta() {
   const data = dataService.getCached("meta");
-  const roleNames = { jungle: "🌲 Jungle", roam: "🛡️ Roam", exp: "⚔️ EXP Lane", gold: "💰 Gold Lane", mid: "🔮 Mid Lane" };
+  const roleNames = { jungle: "Jungle", roam: "Roam", exp: "EXP Lane", gold: "Gold Lane", mid: "Mid Lane" };
   const timestamp = dataService.getLastUpdated("meta");
   const status = data?.status === "source-fetched"
     ? `Sumber berhasil diakses ${formatDataTimestamp(data.fetchedAt)}. Ranked stats mengikuti snapshot harian.`
@@ -513,10 +519,10 @@ function renderMeta() {
       const searchMatches = hero.hero.toLocaleLowerCase("id").includes(metaSearchQuery);
       return tierMatches && searchMatches;
     });
-    return `<section class="meta-role-section"><h2>${roleName}</h2>${filtered.length ? `<div class="meta-hero-grid">${filtered.map((hero) => `
+    return `<section class="meta-role-section"><h2>${roleMeta.renderIdentity(roleName, "", "meta-role-heading")}</h2>${filtered.length ? `<div class="meta-hero-grid">${filtered.map((hero) => `
       <article class="meta-hero-card">
         <div class="meta-card-heading"><h3>${escapeHTML(hero.hero)}</h3><span>${escapeHTML(hero.tier)}</span></div>
-        <p>Role: ${escapeHTML(hero.role || "N/A")}</p>
+        <p class="meta-hero-role">Role: ${roleMeta.renderIdentity(hero.role || "N/A", hero.hero)}</p>
         <p>Win Rate: ${hero.winRate === null ? "N/A" : `${hero.winRate.toFixed(2)}%`}</p>
         <p>Pick Rate: ${hero.pickRate === null ? "N/A" : `${hero.pickRate.toFixed(2)}%`}</p>
         <p>Ban Rate: ${hero.banRate === null ? "N/A" : `${hero.banRate.toFixed(2)}%`}</p>
@@ -667,6 +673,7 @@ function render() {
 }
 
 function renderHeroes() {
+  renderRoleFilters();
   const visibleHeroes = getVisibleHeroes();
   heroGrid.innerHTML = visibleHeroes.map(createCard).join("");
   heroGrid.hidden = visibleHeroes.length === 0;
@@ -675,6 +682,20 @@ function renderHeroes() {
   emptyState.querySelector("p").textContent = state.view === "wishlist" && state.wishlist.length === 0 ? "Simpan hero pilihanmu untuk menyusun rencana latihan." : "Coba kata kunci atau filter lain.";
   resultSummary.textContent = state.view === "wishlist" ? `${visibleHeroes.length} dari ${state.wishlist.length} hero di wishlist` : state.role === "Semua" ? `Menampilkan ${visibleHeroes.length} dari ${heroes.length} hero` : `${visibleHeroes.length} hero ${state.role}`;
   clearFilters.classList.toggle("is-visible", state.role !== "Semua" || state.query !== "" || state.view === "wishlist");
+}
+
+function renderRoleFilters() {
+  const selectedRole = state.role;
+  if (!roleFilterButtons.hasChildNodes()) {
+    roleFilterButtons.innerHTML = `<button class="role-filter-button" type="button" data-role-filter="Semua" aria-label="Tampilkan semua role"><span>ALL</span></button>${roleMeta.entries.map((role) => `
+      <button class="role-filter-button" type="button" data-role-filter="${role.label}" aria-label="Filter ${role.accessibleLabel}">${roleMeta.renderIcon(role.label)}<span>${role.label}</span></button>
+    `).join("")}`;
+  }
+  roleFilterButtons.querySelectorAll("[data-role-filter]").forEach((button) => {
+    const selected = button.dataset.roleFilter === selectedRole;
+    button.classList.toggle("is-selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
 }
 
 function navigate(view, roleId) {
@@ -742,7 +763,7 @@ function createCard(hero, index) {
   return `<article class="hero-card" style="animation-delay:${Math.min(index * 35, 280)}ms">
     <div class="card-art" data-tone="${hero.tone}">
       <span class="card-code">HERO FILE / ${String(heroes.indexOf(hero) + 1).padStart(2, "0")}</span>
-      <span class="card-role">${escapeHTML(hero.role.toUpperCase())}</span>
+      ${roleMeta.renderIdentity(hero.role, hero.name, "card-role")}
       <span class="hero-monogram" aria-hidden="true">${initials}</span>
       <span class="card-index">NOXX127 · ${String(index + 1).padStart(2, "0")}</span>
     </div>
@@ -789,7 +810,7 @@ function openHero(heroId) {
   document.getElementById("dialogWish").hidden = false;
   document.getElementById("dialogPortrait").dataset.tone = hero.tone;
   document.getElementById("dialogInitials").textContent = hero.name === "Yu Zhong" ? "YZ" : hero.name.slice(0, 2).toUpperCase();
-  document.getElementById("dialogRole").innerHTML = `<span class="eyebrow-line"></span> ${escapeHTML(hero.role.toUpperCase())} / ${escapeHTML(hero.lane.toUpperCase())}`;
+  document.getElementById("dialogRole").innerHTML = `<span class="eyebrow-line"></span> ${roleMeta.renderIdentity(hero.role, hero.name, "dialog-role-identity")} / ${escapeHTML(hero.lane.toUpperCase())}`;
   document.getElementById("dialogName").textContent = hero.name;
   document.getElementById("dialogLane").textContent = `ROLE ${hero.role} · LANE ${hero.lane}`;
   document.getElementById("dialogDescription").textContent = hero.description;
@@ -1005,7 +1026,12 @@ if (calculatorReset) {
 
 heroSearch.addEventListener("input", () => { state.query = heroSearch.value.trim(); renderHeroes(); });
 heroSort.addEventListener("change", renderHeroes);
-mobileRole.addEventListener("change", () => { state.role = mobileRole.value; renderHeroes(); });
+roleFilterButtons.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-role-filter]");
+  if (!button) return;
+  state.role = button.dataset.roleFilter;
+  renderHeroes();
+});
 
 heroGrid.addEventListener("click", (event) => {
   const toggle = event.target.closest("[data-toggle]");
