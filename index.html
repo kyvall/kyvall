@@ -39,6 +39,7 @@
         <div class="sidebar-label sidebar-label-secondary">TRACKING</div>
         <nav class="side-nav" aria-label="Progress dan catatan">
           <button class="side-link" type="button" data-view="progress"><span class="nav-icon">◷</span> Progress</button>
+          <button class="side-link" type="button" data-view="watchlist"><span class="nav-icon">🚀</span> Calon Meta S43</button>
           <button class="side-link" type="button" data-view="rank"><span class="nav-icon">♜</span> Target Rank</button>
           <button class="side-link" type="button" data-view="notes"><span class="nav-icon">▤</span> Catatan</button>
           <button class="side-link" type="button" data-view="wishlist"><span class="nav-icon">♡</span> Hero Wishlist <span class="nav-count" id="navWishCount">0</span></button>
@@ -53,10 +54,10 @@
         <section class="view dashboard-view" id="dashboardView" aria-labelledby="pageTitle">
           <div class="dashboard-hero">
             <div class="hero-copy">
-              <div class="eyebrow"><span class="eyebrow-line"></span> PERSONAL TRAINING SYSTEM / 127</div>
-              <h1 id="pageTitle">MASTER EVERY ROLE.<br><span>BUILD YOUR SKILL.</span></h1>
-              <p>Kuasai 5 role. Tingkatkan mekanik. Baca permainan. Jadilah pemain MLBB yang serba bisa.</p>
-              <button class="primary-button" type="button" data-view="role" data-role="jungle">MULAI LATIHAN <span aria-hidden="true">↗</span></button>
+              <div class="eyebrow"><span class="eyebrow-line"></span> 👋 SELAMAT DATANG DI NOXX127</div>
+              <h1 id="pageTitle">MLBB SKILL<br><span>WISHLIST.</span></h1>
+              <p>Bangun skill. Kuasai role. Siap menghadapi Season berikutnya.</p>
+              <div class="hero-actions"><button class="primary-button" type="button" data-view="role" data-role="jungle">MULAI LATIHAN <span aria-hidden="true">↗</span></button><button class="secondary-button" type="button" data-view="watchlist">LIHAT CALON META S43 <span aria-hidden="true">↗</span></button></div>
             </div>
             <div class="overall-panel">
               <div class="overall-ring" id="overallRing"><div><strong id="overallPercent">0%</strong><span>OVERALL</span></div></div>
@@ -67,6 +68,7 @@
           </div>
 
           <div class="content-wrap">
+            <div class="season-callout"><span class="season-callout-icon" aria-hidden="true">🚀</span><div><strong>S42 → CALON META S43</strong><span>Watchlist prediksi · Bukan daftar meta resmi</span></div><button class="text-link" type="button" data-view="watchlist">LIHAT WATCHLIST <span>↗</span></button></div>
             <div class="section-heading dashboard-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> PILIH MEDAN LATIHAN</div><h2>FIVE ROLES. <span>ONE GOAL.</span></h2></div><button class="quiet-button" type="button" data-view="progress">LIHAT ANALYTICS <span>↗</span></button></div>
             <div class="role-grid" id="roleGrid"></div>
 
@@ -83,7 +85,20 @@
         <section class="view role-view" id="roleView" aria-labelledby="roleTitle" hidden>
           <div class="page-intro"><button class="back-link" type="button" data-view="dashboard">← DASHBOARD</button><div class="eyebrow" id="roleEyebrow">ROLE TRAINING</div><h1 id="roleTitle"></h1><p id="roleTagline"></p></div>
           <div class="role-summary surface-panel"><div class="role-summary-title"><span class="role-emblem" id="roleEmblem"></span><div><span class="eyebrow">ROLE PROGRESS</span><strong id="roleCount">0 / 0 SKILL</strong></div></div><strong class="role-percent" id="rolePercent">0%</strong><div class="progress-track"><span id="roleBar"></span></div></div>
+          <label class="role-search-box" for="skillSearch"><span aria-hidden="true">⌕</span><input id="skillSearch" type="search" placeholder="Cari role, skill, atau hero..." autocomplete="off"></label>
           <div class="checklist-groups" id="checklistGroups"></div>
+        </section>
+
+        <section class="view watchlist-view" id="watchlistView" aria-labelledby="watchlistTitle" hidden>
+          <div class="page-intro"><div class="eyebrow">🚀 SEASON PREPARATION / WATCHLIST</div><h1 id="watchlistTitle">S42 → <span>CALON META S43.</span></h1><p>Watchlist hero berdasarkan performa S42 dan tren patch terkini. Ini bukan daftar resmi Meta S43.</p></div>
+          <div class="watchlist-tools">
+            <label class="search-box watchlist-search" for="metaSearch"><span aria-hidden="true">⌕</span><input id="metaSearch" type="search" placeholder="Cari hero atau role..." autocomplete="off"></label>
+            <label class="meta-role-filter" for="metaRoleFilter"><span>FILTER ROLE</span><select id="metaRoleFilter"><option value="all">Semua role</option><option value="jungle">Jungle</option><option value="roam">Roam</option><option value="exp">EXP Lane</option><option value="gold">Gold Lane</option><option value="mid">Mid Lane</option></select></label>
+            <div class="priority-filters" role="group" aria-label="Filter prioritas hero"><button class="priority-filter is-active" type="button" data-meta-priority="all" aria-pressed="true">Semua</button><button class="priority-filter" type="button" data-meta-priority="high" aria-pressed="false">🔥 Prioritas Tinggi</button><button class="priority-filter" type="button" data-meta-priority="watch" aria-pressed="false">🟢 Dipantau</button></div>
+          </div>
+          <p class="watchlist-disclaimer">Prediksi berdasarkan data S42 dan tren patch terkini.</p>
+          <div class="watchlist-groups" id="watchlistGroups"></div>
+          <div class="empty-state" id="watchlistEmpty" hidden><span class="empty-mark" aria-hidden="true">⌕</span><h3>HERO BELUM DITEMUKAN</h3><p>Coba kata kunci atau filter lain.</p></div>
         </section>
 
         <section class="view progress-view" id="progressView" aria-labelledby="progressTitle" hidden>
@@ -96,7 +111,7 @@
 
         <section class="view rank-view" id="rankView" aria-labelledby="rankTitle" hidden>
           <div class="page-intro"><div class="eyebrow">RANKED ROADMAP / SEASON GOAL</div><h1 id="rankTitle">AIM <span>HIGHER.</span></h1><p>Tentukan rank tujuanmu, lalu pantau progres skill yang membawamu ke sana.</p></div>
-          <section class="rank-panel surface-panel"><div class="rank-art" aria-hidden="true">♜</div><div class="eyebrow">🏆 TARGET RANK</div><h2 id="rankDisplay">Belum dipilih</h2><p>Rank tujuan tersimpan otomatis di perangkat ini.</p><label for="rankSelect">PILIH TARGET</label><select id="rankSelect"><option value="">Pilih target rank</option><option>Warrior</option><option>Elite</option><option>Master</option><option>Grandmaster</option><option>Epic</option><option>Legend</option><option>Mythic</option><option>Mythical Honor</option><option>Mythical Glory</option><option>Mythical Immortal</option></select></section>
+          <section class="rank-panel surface-panel"><div class="rank-art" aria-hidden="true">♜</div><div class="eyebrow">🏆 TARGET RANK</div><h2 id="rankDisplay">Belum dipilih</h2><p>Rank tujuan tersimpan otomatis di perangkat ini. Progress mengikuti seluruh latihan role dan hero.</p><div class="rank-progress-summary"><span>PROGRESS LATIHAN</span><strong id="rankProgressPercent">0%</strong><small id="rankProgressCount">0 / 0 checklist</small></div><div class="analytics-track rank-progress-track"><span id="rankProgressBar"></span></div><label for="rankSelect">PILIH TARGET</label><select id="rankSelect"><option value="">Pilih target rank</option><option>Warrior</option><option>Elite</option><option>Master</option><option>Grandmaster</option><option>Epic</option><option>Legend</option><option>Mythic</option><option>Mythical Honor</option><option>Mythical Glory</option><option>Mythical Immortal</option></select></section>
         </section>
 
         <section class="view notes-view" id="notesView" aria-labelledby="notesTitle" hidden>
@@ -116,7 +131,7 @@
         <footer class="page-footer"><span>NOXX127 <span class="footer-slash">/</span> MLBB SKILL WISHLIST</span><span>BUILT FOR THE NEXT MATCH <span class="footer-star">✳</span></span></footer>
       </main>
     </div>
-    <nav class="mobile-nav" aria-label="Navigasi mobile"><button type="button" class="mobile-nav-link is-active" data-view="dashboard"><span>⌂</span>Home</button><button type="button" class="mobile-nav-link" data-view="wishlist"><span>♡</span>Wishlist</button><button type="button" class="mobile-nav-link" data-view="progress"><span>◷</span>Progress</button><button type="button" class="mobile-nav-link" data-view="rank"><span>♜</span>Rank</button><button type="button" class="mobile-nav-link" id="mobileMenuButton"><span>☰</span>Menu</button></nav>
+    <nav class="mobile-nav" aria-label="Navigasi mobile"><button type="button" class="mobile-nav-link is-active" data-view="dashboard"><span>⌂</span>Home</button><button type="button" class="mobile-nav-link" data-view="role" data-role="jungle"><span>🎮</span>Skills</button><button type="button" class="mobile-nav-link" data-view="watchlist"><span>🚀</span>Calon Meta</button><button type="button" class="mobile-nav-link" data-view="progress"><span>◷</span>Progress</button><button type="button" class="mobile-nav-link" id="mobileMenuButton"><span>☰</span>Menu</button></nav>
   </div>
 
   <dialog class="hero-dialog" id="heroDialog" aria-labelledby="dialogName">
@@ -129,6 +144,7 @@
       <p class="dialog-description" id="dialogDescription"></p>
       <div class="skill-heading"><span>SKILL SET</span><span>PASSIVE + 3 SKILL</span></div>
       <ol class="skill-list" id="skillList"></ol>
+      <section class="candidate-study" id="candidateStudy" hidden aria-labelledby="candidateStudyTitle"><div class="candidate-study-heading"><div><span class="eyebrow">PRIORITAS BELAJAR / HERO PROGRESS</span><h3 id="candidateStudyTitle"></h3></div><strong id="candidateStudyProgress">0%</strong></div><div class="candidate-study-track"><span id="candidateStudyBar"></span></div><p id="candidateStudyStatus">Belum mulai</p><div class="candidate-study-list" id="candidateStudyList"></div></section>
       <button class="primary-button dialog-wish" id="dialogWish" type="button"><span aria-hidden="true">♡</span> TAMBAH KE WISHLIST</button>
       <p class="balance-note">Nama skill mengikuti referensi dalam game. Efek dan angka dapat berubah mengikuti update.</p>
     </div>

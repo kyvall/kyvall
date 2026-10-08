@@ -172,6 +172,48 @@ const roleData = [
   ]}
 ];
 
+const candidateHeroes = [
+  { id: "hirara", name: "Hirara", role: "jungle", priority: "high" },
+  { id: "aulus", name: "Aulus", role: "jungle", priority: "high" },
+  { id: "lukas", name: "Lukas", role: "jungle", priority: "high" },
+  { id: "karina", name: "Karina", role: "jungle", priority: "watch" },
+  { id: "yi-sun-shin", name: "Yi Sun-shin", role: "jungle", priority: "watch" },
+  { id: "rafaela", name: "Rafaela", role: "roam", priority: "high" },
+  { id: "marcel", name: "Marcel", role: "roam", priority: "high" },
+  { id: "belerick", name: "Belerick", role: "roam", priority: "high" },
+  { id: "carmilla", name: "Carmilla", role: "roam", priority: "high" },
+  { id: "minotaur", name: "Minotaur", role: "roam", priority: "watch" },
+  { id: "masha", name: "Masha", role: "exp", priority: "high" },
+  { id: "aulus", name: "Aulus", role: "exp", priority: "high" },
+  { id: "gloo", name: "Gloo", role: "exp", priority: "high" },
+  { id: "cici", name: "Cici", role: "exp", priority: "watch" },
+  { id: "argus", name: "Argus", role: "exp", priority: "watch" },
+  { id: "obsidia", name: "Obsidia", role: "gold", priority: "high" },
+  { id: "popol-kupa", name: "Popol & Kupa", role: "gold", priority: "high" },
+  { id: "hanabi", name: "Hanabi", role: "gold", priority: "high" },
+  { id: "bruno", name: "Bruno", role: "gold", priority: "watch" },
+  { id: "irithel", name: "Irithel", role: "gold", priority: "watch" },
+  { id: "eudora", name: "Eudora", role: "mid", priority: "high" },
+  { id: "valir", name: "Valir", role: "mid", priority: "high" },
+  { id: "gord", name: "Gord", role: "mid", priority: "watch" },
+  { id: "kadita", name: "Kadita", role: "mid", priority: "watch" },
+  { id: "kagura", name: "Kagura", role: "mid", priority: "watch" }
+];
+const heroStudyItems = [
+  "Kenali skill pasif dan semua skill",
+  "Hafalkan combo utama",
+  "Pelajari combo alternatif",
+  "Pelajari power spike",
+  "Pelajari item/build utama",
+  "Pelajari emblem/talent yang cocok",
+  "Pelajari matchup",
+  "Pelajari counter",
+  "Latihan positioning",
+  "Latihan team fight",
+  "Main minimal 10 match",
+  "Tonton dan evaluasi replay"
+];
+
 const storageKey = "noxx127-mlbb-skill-wishlist-v1";
 const progressStorageKey = "noxx127-skill-progress-v2";
 const rankOptions = ["Warrior", "Elite", "Master", "Grandmaster", "Epic", "Legend", "Mythic", "Mythical Honor", "Mythical Glory", "Mythical Immortal"];
@@ -186,17 +228,48 @@ const heroDialog = document.getElementById("heroDialog");
 const toast = document.getElementById("toast");
 const sidebar = document.getElementById("sideNav");
 const menuToggle = document.getElementById("menuToggle");
+const checklistGroups = document.getElementById("checklistGroups");
+const skillSearch = document.getElementById("skillSearch");
+const watchlistGroups = document.getElementById("watchlistGroups");
+const metaSearch = document.getElementById("metaSearch");
+const metaRoleFilter = document.getElementById("metaRoleFilter");
+const watchlistEmpty = document.getElementById("watchlistEmpty");
+const candidateStudy = document.getElementById("candidateStudy");
+const skillHeading = document.querySelector(".skill-heading");
+const skillList = document.getElementById("skillList");
+const balanceNote = document.querySelector(".balance-note");
 
 const roleById = Object.fromEntries(roleData.map((role) => [role.id, role]));
-const defaultProgress = { completed: [], focus: "jungle", rank: "", notes: {}, streak: 0, lastActiveDate: "", activeDays: [] };
-const state = { view: "dashboard", activeRole: "jungle", role: "Semua", query: "", wishlist: loadWishlist(), selectedHero: null, progress: loadProgress() };
+const candidateHeroIds = [...new Set(candidateHeroes.map((hero) => hero.id))];
+const heroTasks = candidateHeroIds.flatMap((heroId) => heroStudyItems.map((label, index) => ({ id: `hero:${heroId}:${index + 1}`, heroId, label })));
+const roleTasks = roleData.flatMap((role) => role.groups.flatMap((group, groupIndex) => group[1].map((label, taskIndex) => ({ id: `${role.id}-${groupIndex + 1}-${taskIndex + 1}`, role: role.id, label }))));
+const allTasks = [...roleTasks, ...heroTasks];
+const defaultProgress = { completed: [], heroCompleted: [], focus: "jungle", rank: "", notes: {}, streak: 0, lastActiveDate: "", activeDays: [] };
+let toastTimer;
+let storageWarning = false;
+const state = { view: "dashboard", activeRole: "jungle", role: "Semua", query: "", metaRole: "all", metaPriority: "all", wishlist: loadWishlist(), selectedHero: null, selectedCandidate: null, progress: loadProgress() };
 
 function loadProgress() {
   try {
-    const saved = JSON.parse(localStorage.getItem(progressStorageKey) || "{}");
-    return { ...defaultProgress, ...saved, completed: Array.isArray(saved.completed) ? saved.completed : [], notes: saved.notes && typeof saved.notes === "object" ? saved.notes : {}, activeDays: Array.isArray(saved.activeDays) ? [...saved.activeDays] : [] };
+    const stored = JSON.parse(localStorage.getItem(progressStorageKey) || "{}");
+    const saved = stored && typeof stored === "object" && !Array.isArray(stored) ? stored : {};
+    return {
+      ...defaultProgress,
+      ...saved,
+      completed: Array.isArray(saved.completed) ? saved.completed.filter((id) => typeof id === "string" && roleTasks.some((task) => task.id === id)) : [],
+      heroCompleted: Array.isArray(saved.heroCompleted) ? saved.heroCompleted.filter((id) => typeof id === "string" && heroTasks.some((task) => task.id === id)) : [],
+      notes: saved.notes && typeof saved.notes === "object" && !Array.isArray(saved.notes)
+        ? Object.fromEntries(Object.entries(saved.notes).filter(([, value]) => typeof value === "string"))
+        : {},
+      activeDays: Array.isArray(saved.activeDays) ? saved.activeDays.filter((date) => typeof date === "string") : [],
+      focus: roleById[saved.focus] ? saved.focus : defaultProgress.focus,
+      rank: rankOptions.includes(saved.rank) ? saved.rank : "",
+      streak: Number.isSafeInteger(saved.streak) && saved.streak >= 0 ? saved.streak : 0,
+      lastActiveDate: typeof saved.lastActiveDate === "string" ? saved.lastActiveDate : ""
+    };
   } catch {
-    return { ...defaultProgress, completed: [], notes: {}, activeDays: [] };
+    storageWarning = true;
+    return { ...defaultProgress, completed: [], heroCompleted: [], notes: {}, activeDays: [] };
   }
 }
 
@@ -210,17 +283,20 @@ function saveProgress() {
   }
 }
 
-const allTasks = roleData.flatMap((role) => role.groups.flatMap((group, groupIndex) => group[1].map((label, taskIndex) => ({ id: `${role.id}-${groupIndex + 1}-${taskIndex + 1}`, role: role.id, label }))));
-
 function getRoleProgress(roleId) {
-  const tasks = allTasks.filter((task) => task.role === roleId);
-  const done = tasks.filter((task) => state.progress.completed.includes(task.id)).length;
-  return { done, total: tasks.length, percent: tasks.length ? Math.round(done / tasks.length * 100) : 0 };
+  const tasks = roleTasks.filter((task) => task.role === roleId);
+  const roleHeroes = [...new Set(candidateHeroes.filter((hero) => hero.role === roleId).map((hero) => hero.id))];
+  const relatedHeroTasks = heroTasks.filter((task) => roleHeroes.includes(task.heroId));
+  const done = tasks.filter((task) => state.progress.completed.includes(task.id)).length
+    + relatedHeroTasks.filter((task) => state.progress.heroCompleted.includes(task.id)).length;
+  const total = tasks.length + relatedHeroTasks.length;
+  return { done, total, percent: total ? Math.min(100, Math.round(done / total * 100)) : 0 };
 }
 
 function getOverallProgress() {
-  const done = allTasks.filter((task) => state.progress.completed.includes(task.id)).length;
-  return { done, total: allTasks.length, percent: allTasks.length ? Math.round(done / allTasks.length * 100) : 0 };
+  const done = roleTasks.filter((task) => state.progress.completed.includes(task.id)).length
+    + heroTasks.filter((task) => state.progress.heroCompleted.includes(task.id)).length;
+  return { done, total: allTasks.length, percent: allTasks.length ? Math.min(100, Math.round(done / allTasks.length * 100)) : 0 };
 }
 
 function getCategoryProgress(roleId, groupIndex) {
@@ -235,6 +311,7 @@ function loadWishlist() {
     const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
     return Array.isArray(saved) ? saved.filter((id) => heroes.some((hero) => hero.id === id)) : [];
   } catch {
+    storageWarning = true;
     return [];
   }
 }
@@ -252,7 +329,7 @@ function saveWishlist() {
 function renderRoleCards() {
   document.getElementById("roleGrid").innerHTML = roleData.map((role) => {
     const progress = getRoleProgress(role.id);
-    return `<button class="role-tile" type="button" data-view="role" data-role="${role.id}"><span class="tile-top"><span class="tile-icon">${role.icon}</span><span class="tile-arrow">↗</span></span><span class="tile-name">${role.name}</span><span class="tile-caption">${role.tagline}</span><span class="tile-progress"><span>PROGRESS</span><b>${progress.percent}%</b></span><span class="mini-track"><i style="width:${progress.percent}%"></i></span></button>`;
+    return `<button class="role-tile" type="button" data-view="role" data-role="${role.id}"><span class="tile-top"><span class="tile-icon">${role.icon}</span><span class="tile-arrow">↗</span></span><span class="tile-name">${role.name}</span><span class="tile-caption">${role.tagline}</span><span class="tile-progress"><span>${progress.done} / ${progress.total} CHECKLIST</span><b>${progress.percent}%</b></span><span class="mini-track"><i style="width:${progress.percent}%"></i></span></button>`;
   }).join("");
 }
 
@@ -264,18 +341,86 @@ function renderRole() {
   document.getElementById("roleTitle").textContent = role.name;
   document.getElementById("roleTagline").textContent = role.tagline;
   document.getElementById("roleEmblem").textContent = role.icon;
-  document.getElementById("roleCount").textContent = `${progress.done} / ${progress.total} SKILL`;
+  document.getElementById("roleCount").textContent = `${progress.done} / ${progress.total} CHECKLIST`;
   document.getElementById("rolePercent").textContent = `${progress.percent}%`;
   document.getElementById("roleBar").style.width = `${progress.percent}%`;
-  document.getElementById("checklistGroups").innerHTML = role.groups.map(([title, tasks], groupIndex) => {
+  checklistGroups.innerHTML = role.groups.map(([title, tasks], groupIndex) => {
     const category = getCategoryProgress(role.id, groupIndex);
     const rows = tasks.map((label, taskIndex) => {
       const id = `${role.id}-${groupIndex + 1}-${taskIndex + 1}`;
       const checked = state.progress.completed.includes(id);
-      return `<label class="task-row ${checked ? "is-complete" : ""}"><input type="checkbox" data-task="${id}" ${checked ? "checked" : ""}><span class="custom-check" aria-hidden="true">✓</span><span class="task-label">${escapeHTML(label)}</span></label>`;
-    }).join("");
-    return `<section class="checklist-group"><div class="category-heading"><div><h2>${escapeHTML(title)}</h2><span>${category.done} / ${category.total} SELESAI</span></div><strong>${category.percent}%</strong></div><div class="category-track"><span style="width:${category.percent}%"></span></div><div class="task-list">${rows}</div></section>`;
+      const matches = `${title} ${label}`.toLocaleLowerCase("id").includes(skillSearch.value.trim().toLocaleLowerCase("id"));
+      return { matches, html: `<label class="task-row ${checked ? "is-complete" : ""}"${matches ? "" : " hidden"}><input type="checkbox" data-task="${id}" ${checked ? "checked" : ""}><span class="custom-check" aria-hidden="true">✓</span><span class="task-label">${escapeHTML(label)}</span></label>` };
+    });
+    const visibleRows = rows.map((row) => row.html).join("");
+    return `<section class="checklist-group"${rows.some((row) => row.matches) ? "" : " hidden"}><div class="category-heading"><div><h2>${escapeHTML(title)}</h2><span>${category.done} / ${category.total} SELESAI</span></div><strong>${category.percent}%</strong></div><div class="category-track"><span style="width:${category.percent}%"></span></div><div class="task-list">${visibleRows}</div></section>`;
   }).join("");
+}
+
+function getHeroStudyProgress(heroId) {
+  const tasks = heroTasks.filter((task) => task.heroId === heroId);
+  const done = tasks.filter((task) => state.progress.heroCompleted.includes(task.id)).length;
+  const percent = tasks.length ? Math.min(100, Math.round(done / tasks.length * 100)) : 0;
+  const status = percent === 100 ? "Dikuasai" : percent >= 75 ? "Hampir dikuasai" : percent > 0 ? "Sedang dipelajari" : "Belum mulai";
+  return { done, total: tasks.length, percent, status };
+}
+
+function renderWatchlist() {
+  const query = metaSearch.value.trim().toLocaleLowerCase("id");
+  const visible = candidateHeroes.filter((hero) => {
+    const role = roleById[hero.role];
+    const matchesRole = state.metaRole === "all" || hero.role === state.metaRole;
+    const matchesPriority = state.metaPriority === "all" || hero.priority === state.metaPriority;
+    const matchesQuery = `${hero.name} ${role.label} ${role.name}`.toLocaleLowerCase("id").includes(query);
+    return matchesRole && matchesPriority && matchesQuery;
+  });
+  watchlistEmpty.hidden = visible.length > 0;
+  watchlistGroups.innerHTML = roleData.map((role) => {
+    const entries = visible.filter((hero) => hero.role === role.id);
+    if (entries.length === 0) return "";
+    const cards = entries.map((hero) => {
+      const progress = getHeroStudyProgress(hero.id);
+      const priorityLabel = hero.priority === "high" ? "🔥 PRIORITAS TINGGI" : "🟢 DIPANTAU";
+      return `<article class="candidate-card"><div class="candidate-card-top"><span class="candidate-role">${role.icon} ${escapeHTML(role.label)}</span><span class="candidate-priority ${hero.priority === "high" ? "is-high" : ""}">${priorityLabel}</span></div><h3>${escapeHTML(hero.name)}</h3><span class="candidate-label">CALON META S43 · PRIORITAS BELAJAR</span><div class="candidate-progress-label"><span>${progress.status}</span><strong>${progress.done} / ${progress.total} · ${progress.percent}%</strong></div><div class="candidate-progress-track"><span style="width:${progress.percent}%"></span></div><button class="candidate-open" type="button" data-study="${hero.id}" data-candidate-role="${hero.role}">BUKA CHECKLIST BELAJAR <span aria-hidden="true">↗</span></button></article>`;
+    }).join("");
+    const roleProgress = getRoleProgress(role.id);
+    return `<section class="watchlist-role"><div class="watchlist-role-heading"><div><span class="eyebrow">${role.icon} ${escapeHTML(role.label.toUpperCase())}</span><h2>${escapeHTML(role.name)}</h2></div><span>${entries.length} CALON · ${roleProgress.percent}% TOTAL ROLE</span></div><div class="candidate-grid">${cards}</div></section>`;
+  }).join("");
+}
+
+function renderCandidateStudy(heroId) {
+  const candidate = candidateHeroes.find((hero) => hero.id === heroId);
+  if (!candidate) return;
+  const progress = getHeroStudyProgress(heroId);
+  document.getElementById("candidateStudyTitle").textContent = `${candidate.name} · ${roleById[candidate.role].label}`;
+  document.getElementById("candidateStudyProgress").textContent = `${progress.percent}%`;
+  document.getElementById("candidateStudyBar").style.width = `${progress.percent}%`;
+  document.getElementById("candidateStudyStatus").textContent = `${progress.status} · ${progress.done} dari ${progress.total} checklist`;
+  document.getElementById("candidateStudyList").innerHTML = heroStudyItems.map((label, index) => {
+    const taskId = `hero:${heroId}:${index + 1}`;
+    const checked = state.progress.heroCompleted.includes(taskId);
+    return `<label class="candidate-task ${checked ? "is-complete" : ""}"><input type="checkbox" data-hero-task="${taskId}" ${checked ? "checked" : ""}><span class="custom-check" aria-hidden="true">✓</span><span>${escapeHTML(label)}</span></label>`;
+  }).join("");
+}
+
+function openCandidateHero(heroId, roleId) {
+  const candidate = candidateHeroes.find((hero) => hero.id === heroId && hero.role === roleId);
+  if (!candidate) return;
+  state.selectedCandidate = heroId;
+  state.selectedHero = null;
+  candidateStudy.hidden = false;
+  skillHeading.hidden = true;
+  skillList.hidden = true;
+  balanceNote.hidden = true;
+  document.getElementById("dialogPortrait").dataset.tone = "green";
+  document.getElementById("dialogInitials").textContent = candidate.name.slice(0, 2).toUpperCase();
+  document.getElementById("dialogRole").innerHTML = `<span class="eyebrow-line"></span> ${escapeHTML(roleById[candidate.role].label.toUpperCase())} / CALON META S43`;
+  document.getElementById("dialogName").textContent = candidate.name;
+  document.getElementById("dialogLane").textContent = `${roleById[candidate.role].label} · ${candidate.priority === "high" ? "Prioritas Tinggi" : "Dipantau"}`;
+  document.getElementById("dialogDescription").textContent = "Watchlist prediksi berdasarkan data S42 dan tren patch terkini. Status ini bukan klaim Meta S43 resmi.";
+  document.getElementById("dialogWish").hidden = true;
+  renderCandidateStudy(heroId);
+  heroDialog.showModal();
 }
 
 function getStreakDays() {
@@ -352,6 +497,11 @@ function render() {
   renderNotes();
   document.getElementById("rankSelect").value = state.progress.rank;
   document.getElementById("rankDisplay").textContent = state.progress.rank || "Belum dipilih";
+  const overall = getOverallProgress();
+  document.getElementById("rankProgressPercent").textContent = `${overall.percent}%`;
+  document.getElementById("rankProgressCount").textContent = `${overall.done} / ${overall.total} checklist`;
+  document.getElementById("rankProgressBar").style.width = `${overall.percent}%`;
+  renderWatchlist();
   if (state.view === "heroes" || state.view === "wishlist") renderHeroes();
 }
 
@@ -394,6 +544,15 @@ function completeTask(taskId, isChecked) {
   saveProgress();
   render();
   if (isChecked) showToast("Skill ditandai selesai. Progress diperbarui.");
+}
+
+function completeHeroTask(taskId, isChecked) {
+  if (!heroTasks.some((task) => task.id === taskId)) return;
+  if (isChecked && !state.progress.heroCompleted.includes(taskId)) state.progress.heroCompleted.push(taskId);
+  if (!isChecked) state.progress.heroCompleted = state.progress.heroCompleted.filter((id) => id !== taskId);
+  saveProgress();
+  render();
+  if (state.selectedCandidate) renderCandidateStudy(state.selectedCandidate);
 }
 
 function escapeHTML(value) {
@@ -464,7 +623,13 @@ function updateDialogWishButton(hero) {
 function openHero(heroId) {
   const hero = heroes.find((item) => item.id === heroId);
   if (!hero) return;
+  state.selectedCandidate = null;
   state.selectedHero = hero;
+  candidateStudy.hidden = true;
+  skillHeading.hidden = false;
+  skillList.hidden = false;
+  balanceNote.hidden = false;
+  document.getElementById("dialogWish").hidden = false;
   document.getElementById("dialogPortrait").dataset.tone = hero.tone;
   document.getElementById("dialogInitials").textContent = hero.name === "Yu Zhong" ? "YZ" : hero.name.slice(0, 2).toUpperCase();
   document.getElementById("dialogRole").innerHTML = `<span class="eyebrow-line"></span> ${escapeHTML(hero.role.toUpperCase())} / ${escapeHTML(hero.lane.toUpperCase())}`;
@@ -476,7 +641,6 @@ function openHero(heroId) {
   heroDialog.showModal();
 }
 
-let toastTimer;
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("is-visible");
@@ -492,9 +656,38 @@ document.addEventListener("click", (event) => {
   }
 });
 
-document.getElementById("checklistGroups").addEventListener("change", (event) => {
+checklistGroups.addEventListener("change", (event) => {
   const checkbox = event.target.closest("[data-task]");
   if (checkbox) completeTask(checkbox.dataset.task, checkbox.checked);
+});
+
+document.getElementById("candidateStudyList").addEventListener("change", (event) => {
+  const checkbox = event.target.closest("[data-hero-task]");
+  if (checkbox) completeHeroTask(checkbox.dataset.heroTask, checkbox.checked);
+});
+
+watchlistGroups.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-study]");
+  if (button) openCandidateHero(button.dataset.study, button.dataset.candidateRole);
+});
+
+skillSearch.addEventListener("input", renderRole);
+metaSearch.addEventListener("input", renderWatchlist);
+metaRoleFilter.addEventListener("change", () => {
+  state.metaRole = metaRoleFilter.value;
+  renderWatchlist();
+});
+
+document.querySelector(".priority-filters").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-meta-priority]");
+  if (!button) return;
+  state.metaPriority = button.dataset.metaPriority;
+  document.querySelectorAll("[data-meta-priority]").forEach((filter) => {
+    const active = filter === button;
+    filter.classList.toggle("is-active", active);
+    filter.setAttribute("aria-pressed", String(active));
+  });
+  renderWatchlist();
 });
 
 document.getElementById("focusSelect").addEventListener("change", () => {
@@ -588,7 +781,7 @@ document.addEventListener("keydown", (event) => {
 
 document.getElementById("resetProgress").addEventListener("click", () => {
   if (!window.confirm("Reset seluruh checklist, streak, target rank, dan catatan latihan? Tindakan ini tidak dapat dibatalkan.")) return;
-  state.progress = { ...defaultProgress, completed: [], notes: {}, activeDays: [] };
+  state.progress = { ...defaultProgress, completed: [], heroCompleted: [], notes: {}, activeDays: [] };
   saveProgress();
   render();
   showToast("Semua progress wishlist berhasil direset.");
@@ -616,3 +809,4 @@ document.addEventListener("keydown", (event) => {
 });
 
 render();
+if (storageWarning) showToast("Data progress tersimpan rusak dan dimuat ulang dengan aman.");

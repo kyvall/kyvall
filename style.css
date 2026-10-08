@@ -389,7 +389,7 @@ body { min-width: 320px; background: var(--canvas); }
 .category-heading > strong { color: var(--acid); font: 700 17px/1 var(--display); }
 .category-track { height: 2px; margin: 0 17px; }
 .task-list { padding: 6px 17px 10px; }
-.task-row { min-height: 38px; display: grid; grid-template-columns: 17px minmax(0, 1fr); align-items: center; gap: 10px; position: relative; border-bottom: 1px solid #202820; color: #b9c3b9; font-size: 11px; line-height: 1.45; cursor: pointer; transition: color 150ms ease; }
+.task-row { min-height: 44px; display: grid; grid-template-columns: 17px minmax(0, 1fr); align-items: center; gap: 10px; position: relative; border-bottom: 1px solid #202820; color: #b9c3b9; font-size: 11px; line-height: 1.45; cursor: pointer; transition: color 150ms ease; }
 .task-row:last-child { border-bottom: 0; }
 .task-row input { width: 18px; height: 18px; position: absolute; opacity: 0; cursor: pointer; }
 .custom-check { width: 16px; height: 16px; display: grid; place-items: center; border: 1px solid #495649; border-radius: 2px; color: transparent; font-size: 11px; transition: all 150ms ease; }
@@ -514,7 +514,7 @@ body { min-width: 320px; background: var(--canvas); }
   .category-heading h2 { font-size: 17px; }
   .category-track { margin-inline: 12px; }
   .task-list { padding: 5px 12px 8px; }
-  .task-row { min-height: 43px; gap: 8px; font-size: 10px; }
+  .task-row { min-height: 44px; gap: 8px; font-size: 10px; }
   .analytics-overview { grid-template-columns: 1fr; gap: 12px; margin: 16px 15px 25px; padding: 15px; }
   .analytics-overview > div:first-child { grid-template-columns: auto 1fr; align-items: baseline; column-gap: 10px; }
   .analytics-overview .eyebrow, .analytics-overview .muted-copy { grid-column: 1 / -1; }
@@ -572,4 +572,106 @@ body { min-width: 320px; background: var(--canvas); }
   .heroes-view .card-art { height: 102px; }
   .heroes-view .card-body { padding: 9px 8px; }
   .heroes-view .hero-name { font-size: 18px; }
+}
+
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.secondary-button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 0 14px; border: 1px solid #445440; border-radius: 3px; color: #d3e8c3; background: rgb(17 24 18 / 82%); cursor: pointer; font: 700 11px/1 var(--body); letter-spacing: .4px; transition: border-color 150ms ease, background 150ms ease; }
+.secondary-button:hover { border-color: var(--acid); background: #1a2519; }
+.season-callout { display: flex; align-items: center; gap: 13px; margin-bottom: 25px; padding: 14px 16px; border: 1px solid #36452f; border-radius: 4px; background: linear-gradient(110deg, #151e16, #111712); }
+.season-callout-icon { font-size: 21px; }
+.season-callout > div { display: grid; gap: 4px; }
+.season-callout strong { color: var(--acid); font: 700 13px/1 var(--display); letter-spacing: .5px; }
+.season-callout > div > span { color: #87968a; font-size: 9px; }
+.season-callout .text-link { margin-left: auto; white-space: nowrap; }
+.role-search-box { max-width: 480px; min-height: 42px; display: flex; align-items: center; gap: 10px; margin: 0 clamp(22px, 5vw, 75px) 16px; padding: 0 12px; border: 1px solid #334034; background: #101511; color: #a2afa4; }
+.role-search-box > span { font-size: 20px; }
+.role-search-box input { min-width: 0; width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 11px; }
+.watchlist-tools { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 22px clamp(22px, 5vw, 75px) 0; }
+.watchlist-search { width: min(100%, 330px); height: 42px; }
+.meta-role-filter { display: grid; gap: 6px; color: #819083; font: 700 8px/1 var(--body); letter-spacing: .8px; }
+.meta-role-filter select { min-height: 42px; padding: 0 11px; border: 1px solid #3b493b; border-radius: 2px; color: var(--ink); background: #111711; font: 500 11px/1 var(--body); }
+.priority-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.priority-filter { min-height: 42px; padding: 0 12px; border: 1px solid #334034; border-radius: 3px; color: #a4b0a5; background: #111712; cursor: pointer; font-size: 10px; }
+.priority-filter.is-active { border-color: #788d4d; color: var(--acid); background: #192217; }
+.watchlist-disclaimer { margin: 13px clamp(22px, 5vw, 75px) 0; color: #87968a; font-size: 10px; }
+.watchlist-groups { display: grid; gap: 24px; padding: 20px clamp(22px, 5vw, 75px) 44px; }
+.watchlist-role { min-width: 0; }
+.watchlist-role-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.watchlist-role-heading h2 { margin: 5px 0 0; font: 700 25px/1 var(--display); }
+.watchlist-role-heading > span { color: #849184; font: 700 8px/1 var(--body); letter-spacing: .5px; text-align: right; }
+.candidate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.candidate-card { min-width: 0; padding: 15px; border: 1px solid #2d3a2e; border-radius: 4px; background: linear-gradient(145deg, #151b16, #101511); }
+.candidate-card-top { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+.candidate-role, .candidate-priority, .candidate-label { color: #89988b; font: 700 8px/1.4 var(--body); letter-spacing: .45px; }
+.candidate-priority { text-align: right; }
+.candidate-priority.is-high { color: #e9ae70; }
+.candidate-card h3 { margin: 13px 0 4px; font: 700 24px/1 var(--display); }
+.candidate-label { display: block; color: #8ca37d; font-size: 7px; }
+.candidate-progress-label { display: flex; justify-content: space-between; gap: 8px; margin-top: 17px; color: #8a998c; font-size: 8px; }
+.candidate-progress-label strong { color: #c6d5c6; font-weight: 600; text-align: right; }
+.candidate-progress-track, .candidate-study-track { height: 4px; overflow: hidden; margin-top: 7px; background: #29352a; }
+.candidate-progress-track span, .candidate-study-track span { width: 0; height: 100%; display: block; background: var(--acid); transition: width 250ms ease; }
+.candidate-open { width: 100%; min-height: 44px; margin-top: 11px; padding: 0; border: 0; color: var(--acid); background: transparent; cursor: pointer; text-align: left; font: 700 9px/1 var(--body); letter-spacing: .5px; }
+.candidate-open span { float: right; font-size: 14px; }
+.watchlist-view .empty-state { margin: 22px clamp(22px, 5vw, 75px); }
+.rank-progress-summary { display: grid; grid-template-columns: 1fr auto; gap: 5px; margin: 24px 0 8px; color: #869386; font: 700 8px/1 var(--body); letter-spacing: .6px; }
+.rank-progress-summary strong { grid-column: 2; grid-row: 1 / span 2; color: var(--acid); font: 700 23px/1 var(--display); }
+.rank-progress-summary small { color: #8d998e; font: 500 9px/1.3 var(--body); letter-spacing: 0; }
+.rank-progress-track { margin: 0 0 23px; }
+.candidate-study { margin-top: 22px; padding-top: 18px; border-top: 1px solid #303a31; }
+.candidate-study-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.candidate-study-heading h3 { margin: 7px 0 0; font: 700 23px/1 var(--display); }
+.candidate-study-heading > strong { color: var(--acid); font: 700 23px/1 var(--display); }
+.candidate-study-status, #candidateStudyStatus { margin: 8px 0 4px; color: #869386; font-size: 9px; }
+.candidate-study-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
+.candidate-task { min-height: 44px; display: grid; grid-template-columns: 17px minmax(0, 1fr); align-items: center; gap: 9px; position: relative; border-bottom: 1px solid #222c23; color: #b9c3b9; font-size: 10px; line-height: 1.4; cursor: pointer; }
+.candidate-task input { width: 100%; height: 100%; position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.candidate-task .custom-check { pointer-events: none; }
+.candidate-task:focus-within .custom-check { outline: 2px solid var(--acid); outline-offset: 2px; }
+.candidate-task.is-complete { color: #7d8b7e; }
+.candidate-task.is-complete > span:last-child { text-decoration: line-through; text-decoration-color: #596b4c; }
+.candidate-task.is-complete .custom-check { border-color: var(--acid); color: #0e130c; background: var(--acid); }
+.mobile-nav-link { min-width: 44px; min-height: 44px; }
+
+@media (max-width: 1100px) {
+  .candidate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .dashboard-hero { min-height: 480px; }
+  .hero-actions { gap: 7px; }
+  .hero-actions .primary-button, .hero-actions .secondary-button { min-height: 44px; font-size: 9px; }
+  .season-callout { align-items: start; flex-wrap: wrap; gap: 8px 11px; padding: 12px; }
+  .season-callout-icon { font-size: 18px; }
+  .season-callout .text-link { width: 100%; min-height: 44px; margin: 0; text-align: left; }
+  .role-search-box { max-width: none; margin: 0 15px 12px; }
+  .watchlist-tools { align-items: stretch; flex-direction: column; margin: 16px 15px 0; }
+  .watchlist-search { width: 100%; }
+  .meta-role-filter select { width: 100%; }
+  .priority-filters { margin-left: 0; }
+  .priority-filter { flex: 1; padding-inline: 7px; font-size: 8px; }
+  .watchlist-disclaimer { margin: 12px 15px 0; line-height: 1.5; }
+  .watchlist-groups { gap: 20px; padding: 18px 15px 32px; }
+  .watchlist-role-heading h2 { font-size: 22px; }
+  .watchlist-role-heading > span { max-width: 130px; font-size: 7px; line-height: 1.4; }
+  .candidate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+  .candidate-card { padding: 11px 9px; }
+  .candidate-role, .candidate-priority { font-size: 7px; }
+  .candidate-card h3 { margin-top: 11px; font-size: 21px; }
+  .candidate-progress-label { flex-direction: column; gap: 4px; }
+  .candidate-progress-label strong { text-align: left; }
+  .candidate-open { font-size: 8px; }
+  .candidate-study-list { grid-template-columns: 1fr; }
+  .candidate-task { min-height: 44px; font-size: 10px; }
+  .side-link, .menu-toggle { min-height: 44px; }
+  .rank-progress-summary { margin-top: 18px; }
+}
+@media (max-width: 390px) {
+  .candidate-grid { grid-template-columns: 1fr; }
+  .candidate-card { padding: 13px; }
+  .candidate-progress-label { flex-direction: row; }
+  .candidate-progress-label strong { text-align: right; }
+  .watchlist-role-heading { align-items: start; }
+  .watchlist-role-heading > span { max-width: 100px; }
+  .hero-actions { align-items: stretch; flex-direction: column; }
+  .hero-actions .primary-button, .hero-actions .secondary-button { width: 100%; }
 }
