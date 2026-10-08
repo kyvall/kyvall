@@ -13,113 +13,110 @@
   <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="site-shell">
+  <div class="app-frame" id="top">
     <header class="topbar">
-      <a class="brand" href="#top" aria-label="Noxx127 beranda">
+      <a class="brand" href="#dashboard" data-view="dashboard" aria-label="NOXX127 beranda">
         <span class="brand-mark" aria-hidden="true">N</span>
         <span class="brand-name">NOXX<span>127</span></span>
       </a>
       <span class="topbar-divider" aria-hidden="true"></span>
       <span class="product-label">MLBB <span>SKILL WISHLIST</span></span>
-      <div class="topbar-status"><span class="status-dot"></span> SEASON 36 <span class="status-divider">/</span> 2026</div>
-      <button class="icon-button menu-toggle" id="menuToggle" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="sideNav">
-        <span></span><span></span>
-      </button>
+      <div class="topbar-status"><span class="status-dot"></span> PERSONAL TRAINING SYSTEM</div>
+      <button class="icon-button menu-toggle" id="menuToggle" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="sideNav"><span></span><span></span></button>
     </header>
 
-    <div class="app-layout" id="top">
+    <div class="app-layout">
       <aside class="sidebar" id="sideNav">
-        <div class="sidebar-label">MENU UTAMA</div>
+        <div class="sidebar-label">WORKSPACE</div>
         <nav class="side-nav" aria-label="Navigasi utama">
-          <a class="side-link is-active" href="#roster" data-view="roster"><span class="nav-icon">◈</span> Semua hero <span class="nav-count" id="heroCount">12</span></a>
-          <a class="side-link" href="#wishlist" data-view="wishlist"><span class="nav-icon">♡</span> Wishlist <span class="nav-count" id="navWishCount">0</span></a>
+          <button class="side-link is-active" type="button" data-view="dashboard"><span class="nav-icon">⌂</span> Dashboard</button>
+          <button class="side-link" type="button" data-view="role" data-role="jungle"><span class="nav-icon">🌲</span> Jungle <span class="nav-progress" data-nav-progress="jungle">0%</span></button>
+          <button class="side-link" type="button" data-view="role" data-role="roam"><span class="nav-icon">🛡️</span> Roam <span class="nav-progress" data-nav-progress="roam">0%</span></button>
+          <button class="side-link" type="button" data-view="role" data-role="exp"><span class="nav-icon">⚔️</span> EXP Lane <span class="nav-progress" data-nav-progress="exp">0%</span></button>
+          <button class="side-link" type="button" data-view="role" data-role="gold"><span class="nav-icon">💰</span> Gold Lane <span class="nav-progress" data-nav-progress="gold">0%</span></button>
+          <button class="side-link" type="button" data-view="role" data-role="mid"><span class="nav-icon">🔮</span> Mid Lane <span class="nav-progress" data-nav-progress="mid">0%</span></button>
         </nav>
-        <div class="sidebar-rule"></div>
-        <div class="sidebar-label">ROLE</div>
-        <div class="role-nav" id="roleNav" aria-label="Filter berdasarkan role">
-          <button class="role-link is-active" type="button" data-role="Semua"><span class="role-dot all-dot"></span> Semua role</button>
-          <button class="role-link" type="button" data-role="Assassin"><span class="role-dot assassin-dot"></span> Assassin</button>
-          <button class="role-link" type="button" data-role="Fighter"><span class="role-dot fighter-dot"></span> Fighter</button>
-          <button class="role-link" type="button" data-role="Mage"><span class="role-dot mage-dot"></span> Mage</button>
-          <button class="role-link" type="button" data-role="Marksman"><span class="role-dot marksman-dot"></span> Marksman</button>
-          <button class="role-link" type="button" data-role="Tank"><span class="role-dot tank-dot"></span> Tank</button>
-          <button class="role-link" type="button" data-role="Support"><span class="role-dot support-dot"></span> Support</button>
-        </div>
-        <div class="sidebar-note">
-          <span class="note-emblem" aria-hidden="true">✳</span>
-          <p>Rencanakan hero berikutnya. Kuasai satu skill dalam satu waktu.</p>
-        </div>
-        <div class="sidebar-foot"><span class="online-dot"></span> LOCAL PROFILE <span>·</span> DATA TERSIMPAN DI PERANGKAT</div>
+        <div class="sidebar-label sidebar-label-secondary">TRACKING</div>
+        <nav class="side-nav" aria-label="Progress dan catatan">
+          <button class="side-link" type="button" data-view="progress"><span class="nav-icon">◷</span> Progress</button>
+          <button class="side-link" type="button" data-view="rank"><span class="nav-icon">♜</span> Target Rank</button>
+          <button class="side-link" type="button" data-view="notes"><span class="nav-icon">▤</span> Catatan</button>
+          <button class="side-link" type="button" data-view="wishlist"><span class="nav-icon">♡</span> Hero Wishlist <span class="nav-count" id="navWishCount">0</span></button>
+          <button class="side-link" type="button" data-view="heroes"><span class="nav-icon">♧</span> My Hero Pool <span class="nav-count" id="heroCount">12</span></button>
+        </nav>
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-note"><span class="note-emblem" aria-hidden="true">✳</span><p>Rencanakan match berikutnya. Kuasai satu skill dalam satu waktu.</p></div>
+        <div class="sidebar-foot"><span class="online-dot"></span> LOCAL PROFILE · TERSIMPAN DI PERANGKAT</div>
       </aside>
 
       <main class="main-content">
-        <section class="welcome-band" aria-labelledby="pageTitle">
-          <div class="welcome-copy">
-            <div class="eyebrow"><span class="eyebrow-line"></span> CATATAN LATIHAN NOXX127</div>
-            <h1 id="pageTitle">NEXT UP:<br><span>LEGENDARY.</span></h1>
-            <p>Setiap match punya pelajaran. Hero mana yang akan kamu kuasai berikutnya?</p>
-            <a class="jump-link" href="#roster">PILIH HERO <span aria-hidden="true">↘</span></a>
-          </div>
-          <div class="welcome-art" aria-hidden="true">
-            <div class="art-ring ring-one"></div><div class="art-ring ring-two"></div>
-            <div class="art-cross cross-one">+</div><div class="art-cross cross-two">+</div>
-            <div class="art-number">127</div>
-            <div class="art-stamp"><span>MLBB</span><b>SKILL<br>UP</b></div>
-            <div class="art-caption">PLAY WITH<br>INTENTION</div>
-          </div>
-          <div class="welcome-index"><span>01</span><span class="index-line"></span><span>03</span></div>
-        </section>
-
-        <section class="workspace" id="roster" aria-labelledby="rosterHeading">
-          <div class="section-heading">
-            <div>
-              <div class="eyebrow"><span class="eyebrow-line"></span> HERO LIBRARY</div>
-              <h2 id="rosterHeading">PICK YOUR <span>MAIN.</span></h2>
+        <section class="view dashboard-view" id="dashboardView" aria-labelledby="pageTitle">
+          <div class="dashboard-hero">
+            <div class="hero-copy">
+              <div class="eyebrow"><span class="eyebrow-line"></span> PERSONAL TRAINING SYSTEM / 127</div>
+              <h1 id="pageTitle">MASTER EVERY ROLE.<br><span>BUILD YOUR SKILL.</span></h1>
+              <p>Kuasai 5 role. Tingkatkan mekanik. Baca permainan. Jadilah pemain MLBB yang serba bisa.</p>
+              <button class="primary-button" type="button" data-view="role" data-role="jungle">MULAI LATIHAN <span aria-hidden="true">↗</span></button>
             </div>
-            <div class="library-tools">
-              <label class="search-box" for="heroSearch">
-                <span aria-hidden="true">⌕</span>
-                <input id="heroSearch" type="search" placeholder="Cari hero atau skill..." autocomplete="off">
-                <kbd>/</kbd>
-              </label>
-              <label class="sort-control" for="heroSort"><span>URUTKAN</span>
-                <select id="heroSort" aria-label="Urutkan hero">
-                  <option value="featured">Pilihan</option>
-                  <option value="name">Nama A–Z</option>
-                  <option value="role">Role</option>
-                </select>
-              </label>
+            <div class="overall-panel">
+              <div class="overall-ring" id="overallRing"><div><strong id="overallPercent">0%</strong><span>OVERALL</span></div></div>
+              <div class="overall-meta"><span class="eyebrow">OVERALL PROGRESS</span><strong id="overallCount">0 / 0</strong><span>SKILL DIKUASAI</span></div>
+              <div class="overall-track"><span id="overallBar"></span></div>
+            </div>
+            <span class="hero-index" aria-hidden="true">N°127</span>
+          </div>
+
+          <div class="content-wrap">
+            <div class="section-heading dashboard-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> PILIH MEDAN LATIHAN</div><h2>FIVE ROLES. <span>ONE GOAL.</span></h2></div><button class="quiet-button" type="button" data-view="progress">LIHAT ANALYTICS <span>↗</span></button></div>
+            <div class="role-grid" id="roleGrid"></div>
+
+            <div class="dashboard-lower">
+              <section class="surface-panel target-summary"><div class="panel-heading"><div><div class="eyebrow">🏆 TARGET RANK</div><h3 id="dashboardRank">Belum dipilih</h3></div><button class="icon-link" type="button" data-view="rank" aria-label="Atur target rank">↗</button></div><p>Jaga arah progresmu. Satu match, satu langkah.</p><button class="text-link" type="button" data-view="rank">ATUR TARGET <span>↗</span></button></section>
+              <section class="surface-panel note-summary"><div class="panel-heading"><div><div class="eyebrow">📝 CATATAN LATIHAN</div><h3>Review sesi terakhir</h3></div><button class="icon-link" type="button" data-view="notes" aria-label="Buka catatan latihan">↗</button></div><p id="dashboardNote">Catatan latihanmu akan muncul di sini.</p><button class="text-link" type="button" data-view="notes">BUKA CATATAN <span>↗</span></button></section>
+              <section class="surface-panel streak-summary"><div class="panel-heading"><div><div class="eyebrow">🔥 CURRENT STREAK</div><h3><span id="dashboardStreak">0</span> <small>HARI</small></h3></div><span class="streak-mark" aria-hidden="true">✳</span></div><p>Centang skill setiap hari untuk membangun konsistensi.</p><div class="streak-week" id="streakWeek"></div></section>
+              <section class="surface-panel focus-summary"><div class="panel-heading"><div><div class="eyebrow">🎯 ROLE FOKUS</div><h3 id="dashboardFocusName">Jungle</h3></div><span class="focus-progress" id="dashboardFocusProgress">0%</span></div><label class="dashboard-focus-label" for="dashboardFocusSelect">PILIH ROLE<select id="dashboardFocusSelect" aria-label="Pilih role fokus dashboard"><option value="jungle">🌲 Jungle</option><option value="roam">🛡️ Roam</option><option value="exp">⚔️ EXP Lane</option><option value="gold">💰 Gold Lane</option><option value="mid">🔮 Mid Lane</option></select></label></section>
+              <section class="surface-panel achievement-summary"><div class="panel-heading"><div><div class="eyebrow">⭐ ACHIEVEMENT</div><h3 id="dashboardAchievement">FIRST STEP</h3></div><span class="achievement-summary-mark" aria-hidden="true">✦</span></div><p id="dashboardAchievementCopy">Selesaikan skill pertama untuk membuka achievement.</p><button class="text-link" type="button" data-view="progress">LIHAT SEMUA <span>↗</span></button></section>
             </div>
           </div>
-
-          <div class="mobile-filters" id="mobileFilters">
-            <label for="mobileRole">FILTER ROLE</label>
-            <select id="mobileRole" aria-label="Filter role hero">
-              <option value="Semua">Semua role</option>
-              <option value="Assassin">Assassin</option><option value="Fighter">Fighter</option>
-              <option value="Mage">Mage</option><option value="Marksman">Marksman</option>
-              <option value="Tank">Tank</option><option value="Support">Support</option>
-            </select>
-          </div>
-
-          <div class="filter-summary">
-            <p id="resultSummary" aria-live="polite">Menampilkan semua hero</p>
-            <button class="clear-filters" id="clearFilters" type="button">RESET FILTER <span aria-hidden="true">↺</span></button>
-          </div>
-
-          <div class="hero-grid" id="heroGrid" aria-live="polite"></div>
-
-          <div class="empty-state" id="emptyState" hidden>
-            <span class="empty-mark" aria-hidden="true">⌕</span>
-            <h3>HERO BELUM DITEMUKAN</h3>
-            <p>Coba kata kunci atau filter lain.</p>
-            <button class="text-button" id="emptyReset" type="button">Reset pencarian</button>
-          </div>
-
-          <footer class="page-footer"><span>NOXX127 <span class="footer-slash">/</span> MLBB SKILL WISHLIST</span><span>BUILT FOR THE NEXT MATCH <span class="footer-star">✳</span></span></footer>
         </section>
+
+        <section class="view role-view" id="roleView" aria-labelledby="roleTitle" hidden>
+          <div class="page-intro"><button class="back-link" type="button" data-view="dashboard">← DASHBOARD</button><div class="eyebrow" id="roleEyebrow">ROLE TRAINING</div><h1 id="roleTitle"></h1><p id="roleTagline"></p></div>
+          <div class="role-summary surface-panel"><div class="role-summary-title"><span class="role-emblem" id="roleEmblem"></span><div><span class="eyebrow">ROLE PROGRESS</span><strong id="roleCount">0 / 0 SKILL</strong></div></div><strong class="role-percent" id="rolePercent">0%</strong><div class="progress-track"><span id="roleBar"></span></div></div>
+          <div class="checklist-groups" id="checklistGroups"></div>
+        </section>
+
+        <section class="view progress-view" id="progressView" aria-labelledby="progressTitle" hidden>
+          <div class="page-intro"><div class="eyebrow">ANALYTICS / YOUR TRAINING</div><h1 id="progressTitle">SKILL <span>PROGRESS.</span></h1><p>Setiap centang adalah satu langkah menuju permainan yang lebih baik.</p></div>
+          <div class="analytics-overview surface-panel"><div><span class="eyebrow">OVERALL COMPLETION</span><strong class="analytics-total" id="analyticsPercent">0%</strong><span class="muted-copy" id="analyticsCount">0 dari 0 skill selesai</span></div><div class="analytics-track"><span id="analyticsBar"></span></div></div>
+          <div class="section-heading compact-heading"><div><div class="eyebrow">BREAKDOWN</div><h2>ROLE <span>PROGRESS</span></h2></div><div class="heading-actions"><label class="focus-select">ROLE FOKUS<select id="focusSelect" aria-label="Pilih role fokus"><option value="jungle">🌲 Jungle</option><option value="roam">🛡️ Roam</option><option value="exp">⚔️ EXP Lane</option><option value="gold">💰 Gold Lane</option><option value="mid">🔮 Mid Lane</option></select></label><button class="danger-button" id="resetProgress" type="button">RESET PROGRESS <span aria-hidden="true">↻</span></button></div></div>
+          <div class="progress-role-list" id="progressRoleList"></div>
+          <div class="achievement-section"><div class="section-heading compact-heading"><div><div class="eyebrow">MILESTONES</div><h2>ACHIEVEMENT <span>BOARD</span></h2></div><span class="achievement-total" id="achievementTotal">0 / 4 UNLOCKED</span></div><div class="achievement-grid" id="achievementGrid"></div></div>
+        </section>
+
+        <section class="view rank-view" id="rankView" aria-labelledby="rankTitle" hidden>
+          <div class="page-intro"><div class="eyebrow">RANKED ROADMAP / SEASON GOAL</div><h1 id="rankTitle">AIM <span>HIGHER.</span></h1><p>Tentukan rank tujuanmu, lalu pantau progres skill yang membawamu ke sana.</p></div>
+          <section class="rank-panel surface-panel"><div class="rank-art" aria-hidden="true">♜</div><div class="eyebrow">🏆 TARGET RANK</div><h2 id="rankDisplay">Belum dipilih</h2><p>Rank tujuan tersimpan otomatis di perangkat ini.</p><label for="rankSelect">PILIH TARGET</label><select id="rankSelect"><option value="">Pilih target rank</option><option>Warrior</option><option>Elite</option><option>Master</option><option>Grandmaster</option><option>Epic</option><option>Legend</option><option>Mythic</option><option>Mythical Honor</option><option>Mythical Glory</option><option>Mythical Immortal</option></select></section>
+        </section>
+
+        <section class="view notes-view" id="notesView" aria-labelledby="notesTitle" hidden>
+          <div class="page-intro"><div class="eyebrow">POST-MATCH REVIEW / PRIVATE LOG</div><h1 id="notesTitle">TRAIN WITH <span>INTENT.</span></h1><p>Catat fokusmu sebelum masuk ke match berikutnya.</p></div>
+          <section class="notes-panel surface-panel"><div class="notes-panel-heading"><div><div class="eyebrow">📝 CATATAN LATIHAN NOXX127</div><h2>SESSION <span>NOTES</span></h2></div><span class="saved-indicator" id="savedIndicator">TERSIMPAN</span></div><div class="notes-grid" id="notesGrid"></div><p class="notes-footnote">Semua catatan tersimpan otomatis di browser perangkat ini.</p></section>
+        </section>
+
+        <section class="view heroes-view" id="heroesView" aria-labelledby="rosterHeading" hidden>
+          <div class="content-wrap library-wrap">
+            <div class="section-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> SUPPORTING FEATURE / HERO LIBRARY</div><h2 id="rosterHeading">MY HERO <span>POOL.</span></h2><p class="library-description">Simpan hero yang ingin kamu kuasai berdasarkan role.</p></div><div class="library-tools"><label class="search-box" for="heroSearch"><span aria-hidden="true">⌕</span><input id="heroSearch" type="search" placeholder="Cari hero atau skill..." autocomplete="off"><kbd>/</kbd></label><label class="sort-control" for="heroSort"><span>URUTKAN</span><select id="heroSort" aria-label="Urutkan hero"><option value="featured">Pilihan</option><option value="name">Nama A–Z</option><option value="role">Role</option></select></label></div></div>
+            <div class="mobile-filters" id="mobileFilters"><label for="mobileRole">FILTER ROLE</label><select id="mobileRole" aria-label="Filter role hero"><option value="Semua">Semua role</option><option>Assassin</option><option>Fighter</option><option>Mage</option><option>Marksman</option><option>Tank</option><option>Support</option></select></div>
+            <div class="filter-summary"><p id="resultSummary" aria-live="polite">Menampilkan semua hero</p><button class="clear-filters" id="clearFilters" type="button">RESET FILTER <span aria-hidden="true">↺</span></button></div>
+            <div class="hero-grid" id="heroGrid" aria-live="polite"></div>
+            <div class="empty-state" id="emptyState" hidden><span class="empty-mark" aria-hidden="true">⌕</span><h3>HERO BELUM DITEMUKAN</h3><p>Coba kata kunci atau filter lain.</p><button class="text-button" id="emptyReset" type="button">Reset pencarian</button></div>
+          </div>
+        </section>
+        <footer class="page-footer"><span>NOXX127 <span class="footer-slash">/</span> MLBB SKILL WISHLIST</span><span>BUILT FOR THE NEXT MATCH <span class="footer-star">✳</span></span></footer>
       </main>
     </div>
+    <nav class="mobile-nav" aria-label="Navigasi mobile"><button type="button" class="mobile-nav-link is-active" data-view="dashboard"><span>⌂</span>Home</button><button type="button" class="mobile-nav-link" data-view="wishlist"><span>♡</span>Wishlist</button><button type="button" class="mobile-nav-link" data-view="progress"><span>◷</span>Progress</button><button type="button" class="mobile-nav-link" data-view="rank"><span>♜</span>Rank</button><button type="button" class="mobile-nav-link" id="mobileMenuButton"><span>☰</span>Menu</button></nav>
   </div>
 
   <dialog class="hero-dialog" id="heroDialog" aria-labelledby="dialogName">
@@ -136,7 +133,6 @@
       <p class="balance-note">Nama skill mengikuti referensi dalam game. Efek dan angka dapat berubah mengikuti update.</p>
     </div>
   </dialog>
-
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

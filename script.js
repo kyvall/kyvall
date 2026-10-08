@@ -131,11 +131,53 @@ const heroes = [
   }
 ];
 
+const roleData = [
+  { id: "jungle", icon: "🌲", name: "JUNGLE", label: "Jungle", tagline: "Become the tempo controller.", groups: [
+    ["🌲 HERO POOL", ["Kuasai minimal 3–5 hero Jungler", "Pelajari combo dan mekanik setiap hero", "Pelajari counter dan matchup Jungler", "Latihan Retribution dan timing skill"]],
+    ["🌳 FARMING & JUNGLE PATH", ["Pelajari urutan buff dan jungle camp", "Latihan clear jungle secepat dan seefisien mungkin", "Jaga gold dan level agar unggul", "Pelajari variasi jungle path sesuai kondisi match", "Pantau posisi Jungler lawan"]],
+    ["🐢 OBJEKTIF & RETRIBUTION", ["Latihan timing mengambil Turtle", "Pelajari timing dan setup Lord", "Kuasai Retribution agar tidak mudah kalah kontes", "Koordinasikan objektif dengan Roamer dan Mid Lane", "Amankan area sekitar objektif sebelum mengambilnya"]],
+    ["🗺️ GANK & ROTASI", ["Latihan memilih lane yang paling menguntungkan untuk di-gank", "Pahami kapan harus gank, farming, atau mengambil objektif", "Biasakan melihat minimap", "Pelajari cara membaca posisi lawan", "Manfaatkan keunggulan untuk mengambil turret"]],
+    ["⚔️ TEAM FIGHT", ["Tentukan target utama sebelum masuk", "Latihan positioning saat team fight", "Maksimalkan burst atau damage hero", "Tahu kapan masuk dan kapan mundur", "Sinkronisasi dengan Roamer dan Mid Lane"]],
+    ["🧠 MENTAL & DECISION MAKING", ["Tetap tenang saat objektif tercuri", "Jangan memaksakan kontes yang tidak menguntungkan", "Evaluasi kesalahan setelah match", "Tonton replay untuk memperbaiki pathing", "Latihan Jungle secara rutin"]]
+  ]},
+  { id: "roam", icon: "🛡️", name: "ROAM", label: "Roam", tagline: "See the map. Shape the fight.", groups: [
+    ["🛡️ HERO POOL", ["Kuasai minimal 3–5 hero Roamer", "Pelajari combo dan mekanik setiap hero", "Pelajari Tank, Support, dan Utility Roamer", "Pelajari counter dan matchup Roamer", "Latihan timing crowd control"]],
+    ["🗺️ MAP AWARENESS & VISION", ["Biasakan melihat minimap", "Pelajari posisi lawan dari informasi map", "Buka vision sebelum objektif", "Cek bush dan area berbahaya", "Beri informasi posisi lawan kepada tim"]],
+    ["🔄 ROTASI & GANKING", ["Pelajari rotasi dari Mid ke EXP/Gold Lane", "Latihan menentukan lane yang perlu dibantu", "Latihan setup gank", "Bantu mengamankan Turtle", "Bantu setup area Lord", "Bantu menciptakan peluang mengambil turret"]],
+    ["🤝 MELINDUNGI TIM", ["Lindungi Gold Laner dan damage dealer", "Bantu menyelamatkan teman yang terjebak", "Pelajari kapan harus peel dan kapan harus engage", "Jaga posisi agar tidak terlalu jauh dari tim", "Prioritaskan keselamatan core saat dibutuhkan"]],
+    ["⚔️ TEAM FIGHT & INITIATION", ["Latihan membuka team fight", "Tentukan target prioritas", "Pelajari timing engage dan disengage", "Jangan asal masuk tanpa backup", "Sinkronisasi dengan Jungler dan Mid Lane"]],
+    ["🧠 KOMUNIKASI & MENTAL", ["Biasakan memberi info penting kepada tim", "Tetap tenang saat tim tertinggal", "Hindari mati sia-sia demi vision", "Evaluasi keputusan setelah match", "Tonton replay untuk mencari kesalahan", "Latihan Roam secara rutin"]]
+  ]},
+  { id: "exp", icon: "⚔️", name: "EXP LANE", label: "EXP Lane", tagline: "Win your lane. Own the side lane.", groups: [
+    ["⚔️ HERO POOL", ["Kuasai minimal 3–5 hero EXP Lane", "Pelajari combo dan mekanik setiap hero", "Pelajari counter dan matchup", "Pahami power spike setiap hero", "Latihan penggunaan skill dan ultimate secara efektif"]],
+    ["🥊 LANING & DUEL", ["Amankan minion dan EXP", "Latihan trade damage dengan lawan", "Pelajari kapan harus bertahan dan kapan menyerang", "Pelajari kapan harus push atau cut lane", "Perhatikan posisi Jungler dan Roamer lawan", "Hindari mati sia-sia di early game"]],
+    ["🗺️ ROTASI & MACRO", ["Biasakan melihat minimap", "Pelajari timing rotasi setelah clear lane", "Bantu mengamankan Turtle jika memungkinkan", "Bantu setup Lord pada mid/late game", "Manfaatkan split push saat kondisi memungkinkan", "Pelajari kapan harus join team fight"]],
+    ["🛡️ TEAM FIGHT & INISIASI", ["Latihan membuka team fight", "Tentukan target utama sebelum engage", "Lindungi damage dealer jika diperlukan", "Latihan positioning saat team fight", "Pelajari timing engage dan disengage", "Sinkronisasi dengan Roamer dan Jungler"]],
+    ["🧠 MEKANIK & MENTAL", ["Tingkatkan kemampuan membaca matchup", "Latihan mekanik hero secara rutin", "Tetap tenang saat kalah lane", "Jangan memaksakan duel yang tidak menguntungkan", "Tonton replay untuk mencari kesalahan", "Evaluasi keputusan setelah match", "Latihan EXP Lane secara rutin"]]
+  ]},
+  { id: "gold", icon: "💰", name: "GOLD LANE", label: "Gold Lane", tagline: "Farm smart. Carry the late game.", groups: [
+    ["🏹 HERO POOL", ["Kuasai minimal 3–5 hero Gold Lane", "Pelajari combo dan mekanik setiap hero", "Pelajari counter dan matchup", "Latihan positioning sesuai jenis hero", "Pelajari power spike setiap hero"]],
+    ["💰 FARMING & LANING", ["Latihan last hit minion dengan konsisten", "Maksimalkan gold dari lane", "Pelajari kapan harus poke dan kapan harus mundur", "Pelajari kapan melakukan push turret", "Perhatikan posisi lawan dan Jungler", "Hindari mati sia-sia saat early game"]],
+    ["🗺️ MAP AWARENESS & ROTASI", ["Biasakan melihat minimap", "Waspadai gank dari Jungler dan Roamer lawan", "Pelajari kapan harus ikut rotasi", "Bantu objektif ketika kondisi aman", "Manfaatkan kesempatan mengambil turret"]],
+    ["⚔️ TEAM FIGHT", ["Fokus menyerang target yang aman", "Latihan positioning di belakang garis depan", "Jaga jarak dari Assassin dan Fighter lawan", "Maksimalkan damage tanpa overextend", "Pelajari kapan harus maju dan mundur", "Sinkronisasi dengan Roamer dan Mid Lane"]],
+    ["🧠 MEKANIK & MENTAL", ["Latihan basic attack dan skill secara konsisten", "Tingkatkan reaction time", "Tetap tenang saat kalah lane", "Jangan memaksakan duel yang tidak menguntungkan", "Tonton replay untuk mencari kesalahan", "Evaluasi performa setelah match", "Latihan Gold Lane secara rutin"]]
+  ]},
+  { id: "mid", icon: "🔮", name: "MID LANE", label: "Mid Lane", tagline: "Control the map. Set the pace.", groups: [
+    ["🧙 HERO POOL & MEKANIK", ["Kuasai minimal 3–5 hero Mid Lane", "Pelajari combo dan mekanik setiap hero", "Pelajari counter dan matchup Mid Lane", "Pahami peran Mage dan hero Mid lainnya", "Latihan positioning dan penggunaan skill"]],
+    ["🌊 LANING & FARMING", ["Latihan clear minion dengan cepat", "Jaga gold dan exp agar tidak tertinggal", "Perhatikan posisi Jungler dan Roamer lawan", "Pelajari kapan harus push atau bertahan"]],
+    ["🗺️ ROTASI & MACRO", ["Latihan rotasi setelah clear mid", "Prioritaskan Turtle dan objektif", "Pahami timing Lord", "Bantu EXP Lane atau Gold Lane pada waktu yang tepat", "Biasakan melihat minimap"]],
+    ["👀 MAP AWARENESS & ZONING", ["Biasakan melihat minimap", "Pantau posisi Jungler lawan", "Beri informasi posisi lawan kepada tim", "Kuasai zoning di sekitar objektif", "Hindari posisi yang mudah di-gank"]],
+    ["⚔️ TEAM FIGHT", ["Tentukan target sebelum menggunakan combo", "Latihan positioning", "Maksimalkan burst atau crowd control", "Tahu kapan masuk dan kapan mundur", "Sinkronisasi dengan Jungler dan Roamer"]],
+    ["🧠 MENTAL & KONSISTENSI", ["Tetap tenang saat kalah lane", "Kurangi kesalahan karena terburu-buru", "Evaluasi permainan setelah match", "Tonton replay untuk mencari kesalahan", "Latihan Mid Lane secara rutin"]]
+  ]}
+];
+
 const storageKey = "noxx127-mlbb-skill-wishlist-v1";
+const progressStorageKey = "noxx127-skill-progress-v2";
+const rankOptions = ["Warrior", "Elite", "Master", "Grandmaster", "Epic", "Legend", "Mythic", "Mythical Honor", "Mythical Glory", "Mythical Immortal"];
 const heroGrid = document.getElementById("heroGrid");
 const heroSearch = document.getElementById("heroSearch");
 const heroSort = document.getElementById("heroSort");
-const roleNav = document.getElementById("roleNav");
 const mobileRole = document.getElementById("mobileRole");
 const resultSummary = document.getElementById("resultSummary");
 const emptyState = document.getElementById("emptyState");
@@ -145,13 +187,48 @@ const toast = document.getElementById("toast");
 const sidebar = document.getElementById("sideNav");
 const menuToggle = document.getElementById("menuToggle");
 
-const state = {
-  role: "Semua",
-  view: "roster",
-  query: "",
-  wishlist: loadWishlist(),
-  selectedHero: null
-};
+const roleById = Object.fromEntries(roleData.map((role) => [role.id, role]));
+const defaultProgress = { completed: [], focus: "jungle", rank: "", notes: {}, streak: 0, lastActiveDate: "", activeDays: [] };
+const state = { view: "dashboard", activeRole: "jungle", role: "Semua", query: "", wishlist: loadWishlist(), selectedHero: null, progress: loadProgress() };
+
+function loadProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(progressStorageKey) || "{}");
+    return { ...defaultProgress, ...saved, completed: Array.isArray(saved.completed) ? saved.completed : [], notes: saved.notes && typeof saved.notes === "object" ? saved.notes : {}, activeDays: Array.isArray(saved.activeDays) ? [...saved.activeDays] : [] };
+  } catch {
+    return { ...defaultProgress, completed: [], notes: {}, activeDays: [] };
+  }
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(progressStorageKey, JSON.stringify(state.progress));
+    return true;
+  } catch {
+    showToast("Penyimpanan browser tidak tersedia di perangkat ini.");
+    return false;
+  }
+}
+
+const allTasks = roleData.flatMap((role) => role.groups.flatMap((group, groupIndex) => group[1].map((label, taskIndex) => ({ id: `${role.id}-${groupIndex + 1}-${taskIndex + 1}`, role: role.id, label }))));
+
+function getRoleProgress(roleId) {
+  const tasks = allTasks.filter((task) => task.role === roleId);
+  const done = tasks.filter((task) => state.progress.completed.includes(task.id)).length;
+  return { done, total: tasks.length, percent: tasks.length ? Math.round(done / tasks.length * 100) : 0 };
+}
+
+function getOverallProgress() {
+  const done = allTasks.filter((task) => state.progress.completed.includes(task.id)).length;
+  return { done, total: allTasks.length, percent: allTasks.length ? Math.round(done / allTasks.length * 100) : 0 };
+}
+
+function getCategoryProgress(roleId, groupIndex) {
+  const role = roleById[roleId];
+  const tasks = role.groups[groupIndex][1].map((_, taskIndex) => `${roleId}-${groupIndex + 1}-${taskIndex + 1}`);
+  const done = tasks.filter((id) => state.progress.completed.includes(id)).length;
+  return { done, total: tasks.length, percent: Math.round(done / tasks.length * 100) };
+}
 
 function loadWishlist() {
   try {
@@ -170,6 +247,153 @@ function saveWishlist() {
     showToast("Penyimpanan browser tidak tersedia di perangkat ini.");
     return false;
   }
+}
+
+function renderRoleCards() {
+  document.getElementById("roleGrid").innerHTML = roleData.map((role) => {
+    const progress = getRoleProgress(role.id);
+    return `<button class="role-tile" type="button" data-view="role" data-role="${role.id}"><span class="tile-top"><span class="tile-icon">${role.icon}</span><span class="tile-arrow">↗</span></span><span class="tile-name">${role.name}</span><span class="tile-caption">${role.tagline}</span><span class="tile-progress"><span>PROGRESS</span><b>${progress.percent}%</b></span><span class="mini-track"><i style="width:${progress.percent}%"></i></span></button>`;
+  }).join("");
+}
+
+function renderRole() {
+  const role = roleById[state.activeRole];
+  if (!role) return;
+  const progress = getRoleProgress(role.id);
+  document.getElementById("roleEyebrow").textContent = `${role.icon} ROLE TRAINING / ${role.name}`;
+  document.getElementById("roleTitle").textContent = role.name;
+  document.getElementById("roleTagline").textContent = role.tagline;
+  document.getElementById("roleEmblem").textContent = role.icon;
+  document.getElementById("roleCount").textContent = `${progress.done} / ${progress.total} SKILL`;
+  document.getElementById("rolePercent").textContent = `${progress.percent}%`;
+  document.getElementById("roleBar").style.width = `${progress.percent}%`;
+  document.getElementById("checklistGroups").innerHTML = role.groups.map(([title, tasks], groupIndex) => {
+    const category = getCategoryProgress(role.id, groupIndex);
+    const rows = tasks.map((label, taskIndex) => {
+      const id = `${role.id}-${groupIndex + 1}-${taskIndex + 1}`;
+      const checked = state.progress.completed.includes(id);
+      return `<label class="task-row ${checked ? "is-complete" : ""}"><input type="checkbox" data-task="${id}" ${checked ? "checked" : ""}><span class="custom-check" aria-hidden="true">✓</span><span class="task-label">${escapeHTML(label)}</span></label>`;
+    }).join("");
+    return `<section class="checklist-group"><div class="category-heading"><div><h2>${escapeHTML(title)}</h2><span>${category.done} / ${category.total} SELESAI</span></div><strong>${category.percent}%</strong></div><div class="category-track"><span style="width:${category.percent}%"></span></div><div class="task-list">${rows}</div></section>`;
+  }).join("");
+}
+
+function getStreakDays() {
+  const today = new Date();
+  const day = (today.getDay() + 6) % 7;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - day);
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    const iso = date.toLocaleDateString("sv-SE");
+    const isActive = state.progress.activeDays.includes(iso);
+    return `<span class="${iso === state.progress.lastActiveDate ? "is-today" : ""} ${isActive ? "is-done" : ""}">${["S", "S", "R", "K", "J", "S", "M"][index]}</span>`;
+  }).join("");
+}
+
+function renderProgress() {
+  const overall = getOverallProgress();
+  document.getElementById("analyticsPercent").textContent = `${overall.percent}%`;
+  document.getElementById("analyticsCount").textContent = `${overall.done} dari ${overall.total} skill selesai`;
+  document.getElementById("analyticsBar").style.width = `${overall.percent}%`;
+  document.getElementById("focusSelect").value = state.progress.focus;
+  document.getElementById("progressRoleList").innerHTML = roleData.map((role) => {
+    const progress = getRoleProgress(role.id);
+    return `<button class="progress-role-row ${state.progress.focus === role.id ? "is-focused" : ""}" type="button" data-view="role" data-role="${role.id}"><span class="progress-role-icon">${role.icon}</span><span class="progress-role-name">${role.label}<small>${progress.done} / ${progress.total} skills</small></span><span class="progress-row-track"><i style="width:${progress.percent}%"></i></span><strong>${progress.percent}%</strong></button>`;
+  }).join("");
+  const unlocked = [overall.done >= 1, overall.percent >= 25, overall.percent >= 50, overall.percent === 100];
+  const achievements = [["01", "FIRST STEP", "Skill pertama berhasil dikuasai."], ["25", "BUILDING MOMENTUM", "Selesaikan 25% seluruh skill."], ["50", "HALFWAY THERE", "Selesaikan setengah wishlist."], ["S", "COMPLETE SET", "Kuasai semua skill di wishlist."]];
+  document.getElementById("achievementTotal").textContent = `${unlocked.filter(Boolean).length} / 4 UNLOCKED`;
+  document.getElementById("achievementGrid").innerHTML = achievements.map(([mark, title, description], index) => `<article class="achievement-card ${unlocked[index] ? "is-unlocked" : ""}"><span class="achievement-mark">${mark}</span><div><h3>${title}</h3><p>${description}</p></div><span class="achievement-status">${unlocked[index] ? "UNLOCKED" : "LOCKED"}</span></article>`).join("");
+}
+
+function renderDashboard() {
+  const overall = getOverallProgress();
+  document.getElementById("overallPercent").textContent = `${overall.percent}%`;
+  document.getElementById("overallCount").textContent = `${overall.done} / ${overall.total}`;
+  document.getElementById("overallBar").style.width = `${overall.percent}%`;
+  document.getElementById("overallRing").style.setProperty("--progress", `${overall.percent * 3.6}deg`);
+  document.getElementById("dashboardRank").textContent = state.progress.rank || "Belum dipilih";
+  document.getElementById("dashboardStreak").textContent = String(state.progress.streak);
+  const focus = roleById[state.progress.focus] || roleById.jungle;
+  const focusProgress = getRoleProgress(focus.id);
+  document.getElementById("dashboardFocusName").textContent = focus.label;
+  document.getElementById("dashboardFocusProgress").textContent = `${focusProgress.percent}%`;
+  document.getElementById("dashboardFocusSelect").value = focus.id;
+  const achievementTitle = overall.done === 0 ? "FIRST STEP" : overall.percent >= 50 ? "HALFWAY THERE" : overall.percent >= 25 ? "BUILDING MOMENTUM" : "FIRST STEP";
+  document.getElementById("dashboardAchievement").textContent = achievementTitle;
+  document.getElementById("dashboardAchievementCopy").textContent = overall.done === 0 ? "Selesaikan skill pertama untuk membuka achievement." : `${overall.done} skill selesai. Terus jaga momentum latihannya.`;
+  const note = Object.values(state.progress.notes).find((value) => value && value.trim());
+  document.getElementById("dashboardNote").textContent = note || "Catatan latihanmu akan muncul di sini.";
+  document.getElementById("streakWeek").innerHTML = getStreakDays();
+  renderRoleCards();
+}
+
+function renderNotes() {
+  const fields = [["mainHero", "Hero utama", "Contoh: Fanny"], ["learnHero", "Hero yang ingin dikuasai", "Hero dan mekanik yang ingin dipelajari"], ["mistakes", "Kesalahan yang sering dilakukan", "Apa yang perlu diperbaiki dari match terakhir?"], ["skillFocus", "Skill yang harus ditingkatkan", "Fokus mekanik atau keputusan permainan"], ["nextRank", "Target rank berikutnya", "Rank yang ingin dicapai"], ["focusRole", "Role yang sedang difokuskan", "Role dan alasan memilihnya"]];
+  document.getElementById("notesGrid").innerHTML = fields.map(([key, label, placeholder]) => `<label class="note-field"><span>${label}</span><textarea data-note="${key}" rows="3" placeholder="${placeholder}">${escapeHTML(state.progress.notes[key] || "")}</textarea></label>`).join("");
+}
+
+function render() {
+  const visibleView = state.view === "wishlist" ? "heroes" : state.view;
+  document.querySelectorAll(".view").forEach((view) => { view.hidden = view.id !== `${visibleView}View`; });
+  document.querySelectorAll("[data-view]").forEach((item) => {
+    const active = (item.dataset.view === state.view || (state.view === "wishlist" && item.dataset.view === "wishlist")) && (state.view !== "role" || item.dataset.role === state.activeRole);
+    item.classList.toggle("is-active", active);
+    if (item.matches(".side-link, .mobile-nav-link")) item.setAttribute("aria-current", active ? "page" : "false");
+  });
+  roleData.forEach((role) => { document.querySelector(`[data-nav-progress="${role.id}"]`).textContent = `${getRoleProgress(role.id).percent}%`; });
+  document.getElementById("heroCount").textContent = String(heroes.length);
+  document.getElementById("navWishCount").textContent = String(state.wishlist.length);
+  renderDashboard();
+  renderRole();
+  renderProgress();
+  renderNotes();
+  document.getElementById("rankSelect").value = state.progress.rank;
+  document.getElementById("rankDisplay").textContent = state.progress.rank || "Belum dipilih";
+  if (state.view === "heroes" || state.view === "wishlist") renderHeroes();
+}
+
+function renderHeroes() {
+  const visibleHeroes = getVisibleHeroes();
+  heroGrid.innerHTML = visibleHeroes.map(createCard).join("");
+  heroGrid.hidden = visibleHeroes.length === 0;
+  emptyState.hidden = visibleHeroes.length !== 0;
+  emptyState.querySelector("h3").textContent = state.view === "wishlist" && state.wishlist.length === 0 ? "HERO POOL MASIH KOSONG" : "HERO BELUM DITEMUKAN";
+  emptyState.querySelector("p").textContent = state.view === "wishlist" && state.wishlist.length === 0 ? "Simpan hero pilihanmu untuk menyusun rencana latihan." : "Coba kata kunci atau filter lain.";
+  resultSummary.textContent = state.view === "wishlist" ? `${visibleHeroes.length} dari ${state.wishlist.length} hero di wishlist` : state.role === "Semua" ? `Menampilkan ${visibleHeroes.length} dari ${heroes.length} hero` : `${visibleHeroes.length} hero ${state.role}`;
+  clearFilters.classList.toggle("is-visible", state.role !== "Semua" || state.query !== "" || state.view === "wishlist");
+}
+
+function navigate(view, roleId) {
+  state.view = view;
+  if (roleId && roleById[roleId]) state.activeRole = roleId;
+  render();
+  sidebar.classList.remove("is-open");
+  menuToggle.setAttribute("aria-expanded", "false");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function completeTask(taskId, isChecked) {
+  if (isChecked && !state.progress.completed.includes(taskId)) state.progress.completed.push(taskId);
+  if (!isChecked) state.progress.completed = state.progress.completed.filter((id) => id !== taskId);
+  if (isChecked) {
+    const today = new Date().toLocaleDateString("sv-SE");
+    if (!state.progress.activeDays.includes(today)) state.progress.activeDays.push(today);
+    const activeDays = new Set(state.progress.activeDays);
+    let streak = 0;
+    const activeDate = new Date(`${today}T00:00:00`);
+    while (activeDays.has(activeDate.toLocaleDateString("sv-SE"))) {
+      streak += 1;
+      activeDate.setDate(activeDate.getDate() - 1);
+    }
+    state.progress.streak = streak;
+    state.progress.lastActiveDate = today;
+  }
+  saveProgress();
+  render();
+  if (isChecked) showToast("Skill ditandai selesai. Progress diperbarui.");
 }
 
 function escapeHTML(value) {
@@ -218,54 +442,13 @@ function createCard(hero, index) {
   </article>`;
 }
 
-function updateNavigation() {
-  document.querySelectorAll(".side-link").forEach((link) => {
-    const active = link.dataset.view === state.view;
-    link.classList.toggle("is-active", active);
-    if (active) link.setAttribute("aria-current", "page");
-    else link.removeAttribute("aria-current");
-  });
-  document.querySelectorAll(".role-link").forEach((button) => {
-    const active = button.dataset.role === state.role;
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
-  document.getElementById("navWishCount").textContent = String(state.wishlist.length);
-  document.getElementById("heroCount").textContent = String(heroes.length);
-  mobileRole.value = state.role;
-}
-
-function render() {
-  const visibleHeroes = getVisibleHeroes();
-  heroGrid.innerHTML = visibleHeroes.map(createCard).join("");
-  heroGrid.hidden = visibleHeroes.length === 0;
-  emptyState.hidden = visibleHeroes.length !== 0;
-  emptyState.querySelector("h3").textContent = state.view === "wishlist" && state.wishlist.length === 0 ? "WISHLIST MASIH KOSONG" : "HERO BELUM DITEMUKAN";
-  emptyState.querySelector("p").textContent = state.view === "wishlist" && state.wishlist.length === 0 ? "Simpan hero pilihanmu untuk menyusun rencana latihan." : "Coba kata kunci atau filter lain.";
-
-  if (state.view === "wishlist") {
-    resultSummary.textContent = `${visibleHeroes.length} dari ${state.wishlist.length} hero di wishlist`;
-  } else {
-    resultSummary.textContent = state.role === "Semua"
-      ? `Menampilkan ${visibleHeroes.length} dari ${heroes.length} hero`
-      : `${visibleHeroes.length} hero ${state.role}`;
-  }
-  clearFilters.classList.toggle("is-visible", state.role !== "Semua" || state.query !== "" || state.view !== "roster");
-  updateNavigation();
-}
-
-function setRole(role) {
-  state.role = role;
-  render();
-}
-
 function toggleWishlist(heroId) {
   const hero = heroes.find((item) => item.id === heroId);
   if (!hero) return;
   const isSaved = state.wishlist.includes(heroId);
   state.wishlist = isSaved ? state.wishlist.filter((id) => id !== heroId) : [...state.wishlist, heroId];
   saveWishlist();
-  render();
+  renderHeroes();
   showToast(isSaved ? `${hero.name} dihapus dari wishlist.` : `${hero.name} ditambahkan ke wishlist.`);
   if (state.selectedHero?.id === heroId) updateDialogWishButton(hero);
 }
@@ -301,17 +484,52 @@ function showToast(message) {
   toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 2400);
 }
 
-heroSearch.addEventListener("input", () => {
-  state.query = heroSearch.value.trim();
+document.addEventListener("click", (event) => {
+  const route = event.target.closest("[data-view]");
+  if (route) {
+    event.preventDefault();
+    navigate(route.dataset.view, route.dataset.role);
+  }
+});
+
+document.getElementById("checklistGroups").addEventListener("change", (event) => {
+  const checkbox = event.target.closest("[data-task]");
+  if (checkbox) completeTask(checkbox.dataset.task, checkbox.checked);
+});
+
+document.getElementById("focusSelect").addEventListener("change", () => {
+  state.progress.focus = document.getElementById("focusSelect").value;
+  saveProgress();
   render();
 });
 
-heroSort.addEventListener("change", render);
-roleNav.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-role]");
-  if (button) setRole(button.dataset.role);
+document.getElementById("dashboardFocusSelect").addEventListener("change", () => {
+  state.progress.focus = document.getElementById("dashboardFocusSelect").value;
+  saveProgress();
+  render();
 });
-mobileRole.addEventListener("change", () => setRole(mobileRole.value));
+
+document.getElementById("rankSelect").addEventListener("change", () => {
+  state.progress.rank = document.getElementById("rankSelect").value;
+  saveProgress();
+  render();
+  showToast(state.progress.rank ? `Target rank ${state.progress.rank} tersimpan.` : "Target rank dihapus.");
+});
+
+document.getElementById("notesGrid").addEventListener("input", (event) => {
+  const field = event.target.closest("[data-note]");
+  if (!field) return;
+  state.progress.notes[field.dataset.note] = field.value;
+  saveProgress();
+  const indicator = document.getElementById("savedIndicator");
+  indicator.textContent = "MENYIMPAN";
+  window.clearTimeout(indicator.timer);
+  indicator.timer = window.setTimeout(() => { indicator.textContent = "TERSIMPAN"; }, 350);
+});
+
+heroSearch.addEventListener("input", () => { state.query = heroSearch.value.trim(); renderHeroes(); });
+heroSort.addEventListener("change", renderHeroes);
+mobileRole.addEventListener("change", () => { state.role = mobileRole.value; renderHeroes(); });
 
 heroGrid.addEventListener("click", (event) => {
   const toggle = event.target.closest("[data-toggle]");
@@ -323,34 +541,21 @@ heroGrid.addEventListener("click", (event) => {
   if (detail) openHero(detail.dataset.open);
 });
 
-document.querySelector(".side-nav").addEventListener("click", (event) => {
-  const link = event.target.closest("[data-view]");
-  if (!link) return;
-  event.preventDefault();
-  state.view = link.dataset.view;
-  render();
-  if (window.matchMedia("(max-width: 760px)").matches) {
-    sidebar.classList.remove("is-open");
-    menuToggle.setAttribute("aria-expanded", "false");
-  }
-  document.getElementById("roster").scrollIntoView({ behavior: "smooth", block: "start" });
-});
-
 document.getElementById("clearFilters").addEventListener("click", () => {
   state.role = "Semua";
   state.query = "";
-  state.view = "roster";
+  state.view = "heroes";
   heroSearch.value = "";
   heroSort.value = "featured";
-  render();
+  renderHeroes();
 });
 
 document.getElementById("emptyReset").addEventListener("click", () => {
   state.role = "Semua";
   state.query = "";
-  state.view = "roster";
+  state.view = "heroes";
   heroSearch.value = "";
-  render();
+  renderHeroes();
   heroSearch.focus();
 });
 
@@ -367,9 +572,31 @@ menuToggle.addEventListener("click", () => {
   menuToggle.setAttribute("aria-expanded", String(isOpen));
 });
 
+document.getElementById("mobileMenuButton").addEventListener("click", () => {
+  const isOpen = sidebar.classList.toggle("is-open");
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (sidebar.classList.contains("is-open")) {
+    sidebar.classList.remove("is-open");
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.focus();
+  }
+});
+
+document.getElementById("resetProgress").addEventListener("click", () => {
+  if (!window.confirm("Reset seluruh checklist, streak, target rank, dan catatan latihan? Tindakan ini tidak dapat dibatalkan.")) return;
+  state.progress = { ...defaultProgress, completed: [], notes: {}, activeDays: [] };
+  saveProgress();
+  render();
+  showToast("Semua progress wishlist berhasil direset.");
+});
+
 document.addEventListener("click", (event) => {
   if (!window.matchMedia("(max-width: 760px)").matches || !sidebar.classList.contains("is-open")) return;
-  if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+  if (!sidebar.contains(event.target) && !menuToggle.contains(event.target) && !document.getElementById("mobileMenuButton").contains(event.target)) {
     sidebar.classList.remove("is-open");
     menuToggle.setAttribute("aria-expanded", "false");
   }
@@ -378,6 +605,7 @@ document.addEventListener("click", (event) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "/" && !heroDialog.open && document.activeElement !== heroSearch && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {
     event.preventDefault();
+    navigate("heroes");
     heroSearch.focus();
   }
   if (event.key === "Escape" && sidebar.classList.contains("is-open")) {
